@@ -7,11 +7,11 @@ import {IERC20} from "@openzeppelin-contracts-5.1.0/token/ERC20/IERC20.sol";
 import {ReentrancyGuard} from "@openzeppelin-contracts-5.1.0/utils/ReentrancyGuard.sol";
 import {ERC20Burnable} from "@openzeppelin-contracts-5.1.0/token/ERC20/extensions/ERC20Burnable.sol";
 
-import {IMoonshotToken} from "./IToken.sol";
+import {IImagineToken} from "./IImagineToken.sol";
 import {IUniswapV2Router02} from "./../utils/IUniswapV2Router02.sol";
 import {IUniswapV2Factory} from "./../utils/IUniswapV2Factory.sol";
 
-contract MoonshotToken is ERC20Burnable, IMoonshotToken, ReentrancyGuard {
+contract ImagineToken is ERC20Burnable, IImagineToken, ReentrancyGuard {
     CurveType public constant curveType = CurveType.ConstantProductV1;
 
     uint256 public initalTokenSupply;

@@ -3,7 +3,7 @@ pragma solidity ^0.8.23;
 
 import {IERC20} from "@openzeppelin-contracts-5.1.0/token/ERC20/IERC20.sol";
 
-interface IMoonshotToken is IERC20 {
+interface IImagineToken is IERC20 {
     enum CurveType {
         ConstantProductV1
     }
