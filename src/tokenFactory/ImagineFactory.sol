@@ -1,17 +1,17 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.23;
 
-import {MoonshotToken} from "./../token/Token.sol";
+import {ImagineToken} from "./../token/ImagineToken.sol";
 
-import {IMoonshotFactory} from "./ITokenFactory.sol";
-import {IMoonshotToken} from "./../token/Token.sol";
+import {IImagineFactory} from "./IImagineFactory.sol";
+import {IImagineToken} from "./../token/ImagineToken.sol";
 
 import {Ownable} from "@openzeppelin-contracts-5.1.0/access/Ownable.sol";
 import {ReentrancyGuard} from "@openzeppelin-contracts-5.1.0/utils/ReentrancyGuard.sol";
 import {SignatureChecker} from "@openzeppelin-contracts-5.1.0/utils/cryptography/SignatureChecker.sol";
 import {MessageHashUtils} from "@openzeppelin-contracts-5.1.0/utils/cryptography/MessageHashUtils.sol";
 
-contract MoonshotFactory is IMoonshotFactory, Ownable, ReentrancyGuard {
+contract ImagineFactory is IImagineFactory, Ownable, ReentrancyGuard {
     uint256 public totalSupply;
     uint256 public virtualTokenReserves;
     uint256 public virtualCollateralReserves;
@@ -31,7 +31,7 @@ contract MoonshotFactory is IMoonshotFactory, Ownable, ReentrancyGuard {
     mapping(bytes32 => bool) public usedSignatures;
     mapping(address => bool) public readyForMigration;
 
-    address[] public moonshotTokens;
+    address[] public imagineTokens;
 
     uint256 private constant MAX_BPS = 2_500;
 
@@ -102,15 +102,15 @@ contract MoonshotFactory is IMoonshotFactory, Ownable, ReentrancyGuard {
         );
     }
 
-    function createMoonshotToken(
+    function createImagineToken(
         string memory _name,
         string memory _symbol,
         uint256 _nonce,
         bytes memory _signature
     ) external returns (address) {
         _checkSignatureAndStore(_name, _symbol, _nonce, _signature);
-        MoonshotToken token = new MoonshotToken(
-            IMoonshotToken.ConstructorParams(
+        ImagineToken token = new ImagineToken(
+            IImagineToken.ConstructorParams(
                 _name,
                 _symbol,
                 msg.sender, // creator
@@ -130,12 +130,12 @@ contract MoonshotFactory is IMoonshotFactory, Ownable, ReentrancyGuard {
             )
         );
 
-        moonshotTokens.push(address(token));
-        emit NewMoonshotToken(address(token), msg.sender, _signature);
+        imagineTokens.push(address(token));
+        emit NewImagineToken(address(token), msg.sender, _signature);
         return address(token);
     }
 
-    function createMoonshotTokenAndBuy(
+    function createImagineTokenAndBuy(
         string memory _name,
         string memory _symbol,
         uint256 _nonce,
@@ -144,8 +144,8 @@ contract MoonshotFactory is IMoonshotFactory, Ownable, ReentrancyGuard {
     ) external payable nonReentrant returns (address) {
         _checkSignatureAndStore(_name, _symbol, _nonce, _signature);
 
-        MoonshotToken token = new MoonshotToken(
-            IMoonshotToken.ConstructorParams(
+        ImagineToken token = new ImagineToken(
+            IImagineToken.ConstructorParams(
                 _name,
                 _symbol,
                 msg.sender, // creator
@@ -174,8 +174,8 @@ contract MoonshotFactory is IMoonshotFactory, Ownable, ReentrancyGuard {
         uint256 tokenAmount = token.balanceOf(address(this));
         token.transfer(msg.sender, tokenAmount);
 
-        moonshotTokens.push(address(token));
-        emit NewMoonshotTokenAndBuy(
+        imagineTokens.push(address(token));
+        emit NewImagineTokenAndBuy(
             address(token),
             msg.sender,
             _signature,
@@ -197,12 +197,12 @@ contract MoonshotFactory is IMoonshotFactory, Ownable, ReentrancyGuard {
             uint256 collateralToPayWithFee,
             uint256 helioFee,
             uint256 dexFee
-        ) = IMoonshotToken(_token).buyExactOut{value: msg.value}(
+        ) = IImagineToken(_token).buyExactOut{value: msg.value}(
                 _tokenAmount,
                 _maxCollateralAmount
             );
 
-        IMoonshotToken(_token).transfer(msg.sender, _tokenAmount);
+        IImagineToken(_token).transfer(msg.sender, _tokenAmount);
 
         uint256 refund = address(this).balance;
         if (refund > 0) {
@@ -214,16 +214,16 @@ contract MoonshotFactory is IMoonshotFactory, Ownable, ReentrancyGuard {
             msg.sender,
             _token,
             _tokenAmount,
-            MoonshotToken(_token).totalSupply() -
-                IMoonshotToken(_token).balanceOf(address(_token)),
+            ImagineToken(_token).totalSupply() -
+                IImagineToken(_token).balanceOf(address(_token)),
             collateralToPayWithFee,
             refund,
             helioFee,
             dexFee,
-            IMoonshotToken(_token).getCurveProgressBps()
+            IImagineToken(_token).getCurveProgressBps()
         );
 
-        if (MoonshotToken(_token).tradingStopped()) {
+        if (ImagineToken(_token).tradingStopped()) {
             readyForMigration[_token] = true;
             emit MarketcapReached(_token);
         }
@@ -237,10 +237,10 @@ contract MoonshotFactory is IMoonshotFactory, Ownable, ReentrancyGuard {
             uint256 collateralToPayWithFee,
             uint256 helioFee,
             uint256 dexFee
-        ) = IMoonshotToken(_token).buyExactIn{value: msg.value}(_amountOutMin);
+        ) = IImagineToken(_token).buyExactIn{value: msg.value}(_amountOutMin);
 
-        uint256 tokensOut = IMoonshotToken(_token).balanceOf(address(this));
-        IMoonshotToken(_token).transfer(msg.sender, tokensOut);
+        uint256 tokensOut = IImagineToken(_token).balanceOf(address(this));
+        IImagineToken(_token).transfer(msg.sender, tokensOut);
 
         uint256 refund = address(this).balance;
         if (refund > 0) {
@@ -252,15 +252,15 @@ contract MoonshotFactory is IMoonshotFactory, Ownable, ReentrancyGuard {
             msg.sender,
             _token,
             tokensOut,
-            MoonshotToken(_token).totalSupply() -
-                IMoonshotToken(_token).balanceOf(address(_token)),
+            ImagineToken(_token).totalSupply() -
+                IImagineToken(_token).balanceOf(address(_token)),
             collateralToPayWithFee,
             helioFee,
             dexFee,
-            IMoonshotToken(_token).getCurveProgressBps()
+            IImagineToken(_token).getCurveProgressBps()
         );
 
-        if (MoonshotToken(_token).tradingStopped()) {
+        if (ImagineToken(_token).tradingStopped()) {
             readyForMigration[_token] = true;
             emit MarketcapReached(_token);
         }
@@ -271,7 +271,7 @@ contract MoonshotFactory is IMoonshotFactory, Ownable, ReentrancyGuard {
         uint256 _tokenAmount,
         uint256 _amountCollateralMin
     ) external nonReentrant {
-        MoonshotToken(_token).transferFrom(
+        ImagineToken(_token).transferFrom(
             msg.sender,
             address(this),
             _tokenAmount
@@ -280,7 +280,7 @@ contract MoonshotFactory is IMoonshotFactory, Ownable, ReentrancyGuard {
             uint256 collateralToReceiveMinusFee,
             uint256 helioFee,
             uint256 dexFee
-        ) = MoonshotToken(_token).sellExactIn(
+        ) = ImagineToken(_token).sellExactIn(
                 _tokenAmount,
                 _amountCollateralMin
             );
@@ -292,12 +292,12 @@ contract MoonshotFactory is IMoonshotFactory, Ownable, ReentrancyGuard {
             msg.sender,
             _token,
             _tokenAmount,
-            MoonshotToken(_token).totalSupply() -
-                MoonshotToken(_token).balanceOf(address(_token)),
+            ImagineToken(_token).totalSupply() -
+                ImagineToken(_token).balanceOf(address(_token)),
             collateralToReceiveMinusFee,
             helioFee,
             dexFee,
-            IMoonshotToken(_token).getCurveProgressBps()
+            IImagineToken(_token).getCurveProgressBps()
         );
     }
 
@@ -306,7 +306,7 @@ contract MoonshotFactory is IMoonshotFactory, Ownable, ReentrancyGuard {
         uint256 _tokenAmountMax,
         uint256 _amountCollateral
     ) external nonReentrant {
-        MoonshotToken(_token).transferFrom(
+        ImagineToken(_token).transferFrom(
             msg.sender,
             address(this),
             _tokenAmountMax
@@ -316,7 +316,7 @@ contract MoonshotFactory is IMoonshotFactory, Ownable, ReentrancyGuard {
             uint256 tokensOut,
             uint256 helioFee,
             uint256 dexFee
-        ) = MoonshotToken(_token).sellExactOut(
+        ) = ImagineToken(_token).sellExactOut(
                 _tokenAmountMax,
                 _amountCollateral
             );
@@ -328,12 +328,12 @@ contract MoonshotFactory is IMoonshotFactory, Ownable, ReentrancyGuard {
             msg.sender,
             _token,
             tokensOut,
-            MoonshotToken(_token).totalSupply() -
-                MoonshotToken(_token).balanceOf(address(_token)),
+            ImagineToken(_token).totalSupply() -
+                ImagineToken(_token).balanceOf(address(_token)),
             collateralToReceiveMinusFee,
             helioFee,
             dexFee,
-            IMoonshotToken(_token).getCurveProgressBps()
+            IImagineToken(_token).getCurveProgressBps()
         );
     }
 
@@ -344,15 +344,15 @@ contract MoonshotFactory is IMoonshotFactory, Ownable, ReentrancyGuard {
             uint256 tokensToMigrate,
             uint256 tokensToBurn,
             uint256 collateralAmount
-        ) = MoonshotToken(_token).migrate();
+        ) = ImagineToken(_token).migrate();
         emit Migrated(
             _token,
             tokensToMigrate,
             tokensToBurn,
             collateralAmount,
-            MoonshotToken(_token).fixedMigrationFee() +
-                MoonshotToken(_token).poolCreationFee(),
-            MoonshotToken(_token).pair()
+            ImagineToken(_token).fixedMigrationFee() +
+                ImagineToken(_token).poolCreationFee(),
+            ImagineToken(_token).pair()
         );
     }
 

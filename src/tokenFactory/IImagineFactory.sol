@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.23;
 
-interface IMoonshotFactory {
+interface IImagineFactory {
     error InvalidSignature();
     error SignatureIsUsed();
     error FailedToSendETH();
@@ -35,9 +35,9 @@ interface IMoonshotFactory {
         address signer
     );
 
-    event NewMoonshotToken(address addr, address creator, bytes signature);
+    event NewImagineToken(address addr, address creator, bytes signature);
 
-    event NewMoonshotTokenAndBuy(
+    event NewImagineTokenAndBuy(
         address addr,
         address creator,
         bytes signature,
@@ -140,14 +140,14 @@ interface IMoonshotFactory {
         address _signer
     ) external;
 
-    function createMoonshotToken(
+    function createImagineToken(
         string memory _name,
         string memory _symbol,
         uint256 _nonce,
         bytes memory _signature
     ) external returns (address);
 
-    function createMoonshotTokenAndBuy(
+    function createImagineTokenAndBuy(
         string memory _name,
         string memory _symbol,
         uint256 _nonce,
