@@ -38,6 +38,8 @@ contract ImagineToken is ERC20Burnable, IImagineToken, ReentrancyGuard {
     bool public tradingStopped;
     bool public sendingToPairNotAllowed = true;
 
+    string private _tokenURI;
+
     uint256 public constant MAX_BPS = 10_000;
 
     IUniswapV2Router02 public immutable uniswapV2Router;
@@ -63,6 +65,7 @@ contract ImagineToken is ERC20Burnable, IImagineToken, ReentrancyGuard {
         ConstructorParams memory _params
     ) ERC20(_params.name, _params.symbol) {
         _mint(address(this), _params.totalSupply);
+        _tokenURI = _params.tokenURI;
 
         initalTokenSupply = _params.totalSupply;
         virtualCollateralReserves = _params.virtualCollateralReserves;
@@ -105,6 +108,11 @@ contract ImagineToken is ERC20Burnable, IImagineToken, ReentrancyGuard {
                 )
             )
         );
+    }
+
+    // Function to set the token URI.
+    function setTokenURI(string memory tokenURI_) external {
+        _tokenURI = tokenURI_;
     }
 
     /**
@@ -385,6 +393,11 @@ contract ImagineToken is ERC20Burnable, IImagineToken, ReentrancyGuard {
         uint256 mc = (virtualCollateralReserves * 10 ** 18 * totalSupply()) /
             virtualTokenReserves;
         return mc / 10 ** 18;
+    }
+
+    // Function to get the token URI
+    function getTokenURI() external view returns (string memory) {
+        return _tokenURI;
     }
 
     function getCurveProgressBps() external view returns (uint256) {

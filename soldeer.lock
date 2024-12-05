@@ -4,3 +4,17 @@ version = "5.1.0"
 url = "https://soldeer-revisions.s3.amazonaws.com/@openzeppelin-contracts/5_1_0_19-10-2024_10:28:52_contracts.zip"
 checksum = "fd3d1ea561cb27897008aee18ada6e85f248eb161c86e4435272fc2b5777574f"
 integrity = "cb6cf6e878f2943b2291d5636a9d72ac51d43d8135896ceb6cf88d36c386f212"
+
+[[dependencies]]
+name = "@uniswap-v2-core"
+version = "1.0.1"
+url = "https://soldeer-revisions.s3.amazonaws.com/@uniswap-v2-core/1_0_1_22-01-2024_13:18:30_v2-core.zip"
+checksum = "efebb89237048771c19f52d3ce87ec4d0c591279bf1977c49f9e70e5fff530f0"
+integrity = "fda4e18a2a0c21eeddd8b6af36439f394e4ff74eb75705409a87b8952c9e2972"
+
+[[dependencies]]
+name = "@uniswap-v2-periphery"
+version = "1.1.0-beta.0"
+url = "https://soldeer-revisions.s3.amazonaws.com/@uniswap-v2-periphery/1_1_0-beta_0_22-01-2024_13:18:39_v2-periphery.zip"
+checksum = "3bdc6134f1a89bc72052acde4882eb165e27f220982f53b399d7a1121bf2ab06"
+integrity = "9257846e3b8e190d352f55e7d3f81ba271c9fc651ad61f045f46b49ea651f191"

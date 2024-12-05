@@ -11,6 +11,7 @@ interface IImagineToken is IERC20 {
     struct ConstructorParams {
         string name;
         string symbol;
+        string tokenURI;
         address creator;
         uint256 totalSupply;
         uint256 virtualTokenReserves;
@@ -36,6 +37,8 @@ interface IImagineToken is IERC20 {
     error SendingToPairIsNotAllowedBeforeMigration();
     error TradingStopped();
     error OnlyFactory();
+
+    function setTokenURI(string memory tokenURI_) external;
 
     function buyExactOut(
         uint256 _tokenAmount,
@@ -110,4 +113,6 @@ interface IImagineToken is IERC20 {
     function getCurveProgressBps() external view returns (uint256);
 
     function getMarketCap() external view returns (uint256);
+
+    function getTokenURI() external view returns (string memory);
 }

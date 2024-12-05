@@ -113,6 +113,7 @@ contract ImagineFactory is IImagineFactory, Ownable, ReentrancyGuard {
             IImagineToken.ConstructorParams(
                 _name,
                 _symbol,
+                "",
                 msg.sender, // creator
                 totalSupply,
                 virtualTokenReserves,
@@ -148,6 +149,7 @@ contract ImagineFactory is IImagineFactory, Ownable, ReentrancyGuard {
             IImagineToken.ConstructorParams(
                 _name,
                 _symbol,
+                "",
                 msg.sender, // creator
                 totalSupply,
                 virtualTokenReserves,
