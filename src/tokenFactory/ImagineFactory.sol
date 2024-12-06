@@ -107,15 +107,16 @@ contract ImagineFactory is IImagineFactory, Ownable, ReentrancyGuard {
     function createImagineToken(
         string memory _name,
         string memory _symbol,
+        string memory _tokenURI,
         uint256 _nonce,
         bytes memory _signature
     ) external returns (address) {
-        _checkSignatureAndStore(_name, _symbol, _nonce, _signature);
+        _checkSignatureAndStore(_name, _symbol,_tokenURI, _nonce, _signature);
         ImagineToken token = new ImagineToken(
             IImagineToken.ConstructorParams(
                 _name,
                 _symbol,
-                "",
+                _tokenURI,
                 msg.sender, // creator
                 totalSupply,
                 virtualTokenReserves,
@@ -141,17 +142,18 @@ contract ImagineFactory is IImagineFactory, Ownable, ReentrancyGuard {
     function createImagineTokenAndBuy(
         string memory _name,
         string memory _symbol,
+        string memory _tokenURI,
         uint256 _nonce,
         uint256 _tokenAmountMin,
         bytes memory _signature
     ) external payable nonReentrant returns (address) {
-        _checkSignatureAndStore(_name, _symbol, _nonce, _signature);
+        _checkSignatureAndStore(_name, _symbol,_tokenURI, _nonce, _signature);
 
         ImagineToken token = new ImagineToken(
             IImagineToken.ConstructorParams(
                 _name,
                 _symbol,
-                "",
+                _tokenURI,
                 msg.sender, // creator
                 totalSupply,
                 virtualTokenReserves,
@@ -425,6 +427,7 @@ contract ImagineFactory is IImagineFactory, Ownable, ReentrancyGuard {
     function _checkSignatureAndStore(
         string memory _name,
         string memory _symbol,
+        string memory _tokenURI,
         uint256 _nonce,
         bytes memory _signature
     ) internal {
@@ -434,6 +437,7 @@ contract ImagineFactory is IImagineFactory, Ownable, ReentrancyGuard {
             abi.encodePacked(
                 _name,
                 _symbol,
+                _tokenURI,
                 _nonce,
                 address(this),
                 block.chainid,
@@ -449,8 +453,6 @@ contract ImagineFactory is IImagineFactory, Ownable, ReentrancyGuard {
                 _signature
             )
         ) revert InvalidSignature();
-        
-        console.log("test");
 
         usedSignatures[keccak256(_signature)] = true;
     }

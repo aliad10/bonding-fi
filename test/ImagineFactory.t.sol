@@ -7,10 +7,13 @@ import "../src/tokenFactory/ImagineFactory.sol";
 
 import "@openzeppelin-contracts-5.1.0/access/Ownable.sol";
 
+import {MockUniswapV2Router} from "../src/utils/external/MockUniswapV2Router.sol";
+
 
 contract TestImagineFactory is Test {
     
-    ImagineFactory factory;
+    ImagineFactory public factory;
+    MockUniswapV2Router public mockUniswapV2Router;
 
 
     function setUp() public {
@@ -26,8 +29,9 @@ contract TestImagineFactory is Test {
         uint256 tokensMigrationThreshold = 799_000_000 ether;
         address treasury = address(0x123);
         address dexTreasury = address(0x456);
-        address uniswapV2Router = address(0x789);
         address signer = address(0x36dAE5e01a28Eef44Fc6122C3518157c66570805);
+
+        mockUniswapV2Router = new MockUniswapV2Router();
 
         factory = new ImagineFactory(
             totalSupply,
@@ -42,7 +46,7 @@ contract TestImagineFactory is Test {
             tokensMigrationThreshold,
             treasury,
             dexTreasury,
-            uniswapV2Router,
+            address(mockUniswapV2Router),
             signer
         );
 
@@ -172,19 +176,69 @@ contract TestImagineFactory is Test {
     function testCreateImagineTokenSuccess() public {
         string memory name = "TestToken";
         string memory symbol = "TTK";
+        string memory tokenURI = "test token uri";
+
         uint256 nonce = 1;
 
-        bytes memory validSignature = hex"325200869ca57fd890a0d469d7d9960d01d03b78e6628df846600402c3f6b29f09c2fd314e4235614b4b825eec676d6fb542482803152332c164d1d67f2085261b";
+        bytes memory validSignature = hex"b1fef06d29793f1448b0f4fdc2ee821b3b7f9ec74af47042b6e017a826faed184ff3c4948568fa164aa701d956231264c6231f2cea53a37f08c131ed0544f90f1c";
 
-        // // Expect the NewImagineToken event to be emitted
+
         // vm.expectEmit(true, true, true, true);
+        // emit IImagineFactory.NewImagineToken(address(0), address(this), validSignature);
+
+
+        address tokenAddress = factory.createImagineToken(name, symbol,tokenURI, nonce, validSignature);
+
+
+        assertTrue(tokenAddress != address(0), "Token address should not be zero");
+
+        assertEq(factory.imagineTokens(0), tokenAddress, "The token should be added to the imagineTokens array");
+
+
+    }
+
+    function testCreateImagineTokenFailInvalidSignature() public {
+        string memory name = "TestToken";
+        string memory symbol = "TTK";
+        string memory tokenURI = "https://token.uri";
+        uint256 nonce = 1;
+
+        bytes memory invalidSignature = hex"123456";
+
+        vm.expectRevert(IImagineFactory.InvalidSignature.selector);
+
+        factory.createImagineToken(name, symbol, tokenURI, nonce, invalidSignature);
+    }
+
+    function testCreateImagineTokenFailDuplicateSignature() public {
+        string memory name = "TestToken";
+        string memory symbol = "TTK";
+        string memory tokenURI = "test token uri";
+
+        bytes memory validSignature = hex"b1fef06d29793f1448b0f4fdc2ee821b3b7f9ec74af47042b6e017a826faed184ff3c4948568fa164aa701d956231264c6231f2cea53a37f08c131ed0544f90f1c";
         
-        // emit factory.NewImagineToken(address(0), owner, validSignature); // Expect the event
+        uint256 nonce = 1;
 
-        address tokenAddress = factory.createImagineToken(name, symbol, nonce, validSignature);
+        factory.createImagineToken(name, symbol, tokenURI, nonce, validSignature);
 
-        // assertTrue(tokenAddress != address(0), "Token address should not be zero");
-        // assertEq(factory.imagineTokens(0), tokenAddress, "The token should be added to the imagineTokens array");
+        vm.expectRevert(IImagineFactory.SignatureIsUsed.selector);
+
+        factory.createImagineToken(name, symbol, tokenURI, nonce, validSignature);
+    }
+
+    function testCreateImagineTokenFailInvalidName() public {
+        string memory name = ""; // Invalid name
+        string memory symbol = "TTK";
+        string memory tokenURI = "test token uri";
+
+        bytes memory validSignature = hex"b1fef06d29793f1448b0f4fdc2ee821b3b7f9ec74af47042b6e017a826faed184ff3c4948568fa164aa701d956231264c6231f2cea53a37f08c131ed0544f90f1c";
+        
+        uint256 nonce = 1;
+
+
+        vm.expectRevert();
+
+        factory.createImagineToken(name, symbol, tokenURI, nonce, validSignature);
     }
 
 }
