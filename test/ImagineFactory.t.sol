@@ -14,6 +14,7 @@ contract TestImagineFactory is Test {
     
     ImagineFactory public factory;
     MockUniswapV2Router public mockUniswapV2Router;
+    ImagineToken public tokenInstance;
 
 
     function setUp() public {
@@ -49,6 +50,8 @@ contract TestImagineFactory is Test {
             address(mockUniswapV2Router),
             signer
         );
+
+        tokenInstance = ImagineToken(CreateImagineTokenExample());
 
     }
 
@@ -173,6 +176,19 @@ contract TestImagineFactory is Test {
         vm.stopPrank();
     }
 
+    function CreateImagineTokenExample() public returns(address) {
+        string memory name = "TestToken";
+        string memory symbol = "TTK";
+        string memory tokenURI = "test token uri";
+
+        uint256 nonce = 1;
+
+        bytes memory validSignature = hex"b1fef06d29793f1448b0f4fdc2ee821b3b7f9ec74af47042b6e017a826faed184ff3c4948568fa164aa701d956231264c6231f2cea53a37f08c131ed0544f90f1c";
+
+
+        return factory.createImagineToken(name, symbol,tokenURI, nonce, validSignature);
+    }
+
     function testCreateImagineTokenSuccess() public {
         string memory name = "TestToken";
         string memory symbol = "TTK";
@@ -240,6 +256,64 @@ contract TestImagineFactory is Test {
 
         factory.createImagineToken(name, symbol, tokenURI, nonce, validSignature);
     }
+
+
+    // function testMigrateFailsNotReady() public {
+
+    //     vm.expectRevert(IImagineFactory.NotReadyForMigration.selector);
+        
+    //     factory.migrate(tokenInstance);
+    // }
+
+    // function testMigrateSuccess() public {
+   
+    //     assertTrue(factory.readyForMigration(address(tokenInstance)));
+
+    //     // Simulate migration
+    //     vm.prank(creator);
+    //     vm.expectEmit(true, true, true, true);
+    //     emit ImagineFactory.Migrated(
+    //         address(token),
+    //         100 ether,     // tokensToMigrate (example value)
+    //         50 ether,      // tokensToBurn (example value)
+    //         1.5 ether,     // collateralAmount (example value)
+    //         1.5 ether,     // migration fees
+    //         token.pair()   // associated pair address
+    //     );
+
+    //     factory.migrate(address(token));
+
+    //     // Post-migration assertions
+    //     assertFalse(factory.readyForMigration(address(token)), "Token should no longer be ready for migration");
+    // }
+
+    // function testMigrateFailsUnauthorizedCaller() public {
+
+
+    //     assertTrue(factory.readyForMigration(address(tokenInstance)));
+
+    //     address unauthorizedCaller = address(0x999);
+        
+    //     vm.prank(unauthorizedCaller);
+        
+    //     vm.expectRevert("Ownable: caller is not the owner");
+
+    //     factory.migrate(address(tokenInstance));
+    // }
+
+    // // Test: Migration Fails - Token Already Migrated
+    // function testMigrateFailsAlreadyMigrated() public {
+    //     // Ensure the token is marked as ready for migration
+    //     assertTrue(factory.readyForMigration(address(token)));
+
+    //     // Simulate migration
+    //     vm.prank(creator);
+    //     factory.migrate(address(token));
+
+    //     // Attempt migration again and expect revert
+    //     vm.expectRevert(ImagineFactory.NotReadyForMigration.selector);
+    //     factory.migrate(address(token));
+    // }
 
 }
 
