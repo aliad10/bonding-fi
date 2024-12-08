@@ -135,12 +135,12 @@ contract ImagineToken is ERC20Burnable, IImagineToken, ReentrancyGuard {
             uint256 dexFee
         )
     {
-        console.logUint(msg.value);
         if (balanceOf(address(this)) <= _tokenAmount)
             revert InsufficientTokenReserves();
 
         uint256 collateralToSpend = (_tokenAmount * virtualCollateralReserves) /
             (virtualTokenReserves - _tokenAmount);
+        console.log("collateralToSpend", collateralToSpend);
         (helioFee, dexFee) = _calculateFee(collateralToSpend);
 
         collateralToPayWithFee = collateralToSpend + helioFee + dexFee;
@@ -228,6 +228,7 @@ contract ImagineToken is ERC20Burnable, IImagineToken, ReentrancyGuard {
     {
         uint256 collaterallToReceive = (_tokenAmount *
             virtualCollateralReserves) / (virtualTokenReserves + _tokenAmount);
+        console.log("collaterallToReceive", collaterallToReceive);
         (helioFee, dexFee) = _calculateFee(collaterallToReceive);
         collateralToReceiveMinusFee = collaterallToReceive - helioFee - dexFee;
         _transferCollateral(treasury, helioFee);
