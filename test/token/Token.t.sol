@@ -440,6 +440,11 @@ contract ImagineTokenTest is Test {
         uint dexTreasuryBalanceBeforeSell = address(token.dexTreasury())
             .balance;
 
+        uint prevTokenReserve = token.virtualTokenReserves();
+        uint prevCollateralReserve = token.virtualCollateralReserves();
+
+        uint factoryBalanceBeforeSell = address(this).balance;
+
         token.sellExactIn(tokenAmount, minCollateralAmount);
 
         assertEq(
@@ -447,10 +452,42 @@ contract ImagineTokenTest is Test {
             treasuryBalanceBeforeSell + treasuryFeeShare,
             "treasury fee balance mismatch"
         );
+
+        console.log("contractTokenAmountBefore", contractTokenAmountBefore);
+
         assertEq(
             address(token.dexTreasury()).balance,
             dexTreasuryBalanceBeforeSell + dexTreasuryFeeShare,
             "dex treasury fee balance mismatch"
+        );
+
+        assertEq(
+            prevTokenReserve + tokenAmount,
+            token.virtualTokenReserves(),
+            "token reserve mismatch"
+        );
+        assertEq(
+            prevCollateralReserve - totalEthToReceive,
+            token.virtualCollateralReserves(),
+            "collateral reserve mismatch"
+        );
+
+        assertEq(
+            factoryBalanceBeforeSell + finalTotalEthToReceive,
+            address(this).balance,
+            "factory eth balance mismatch"
+        );
+
+        assertEq(
+            contractTokenAmountBefore + tokenAmount,
+            token.balanceOf(address(token)),
+            "token contract balance mismatch"
+        );
+
+        assertEq(
+            0,
+            token.balanceOf(address(this)),
+            "buyer token balance mismatch"
         );
     }
 
