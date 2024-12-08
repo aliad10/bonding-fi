@@ -143,6 +143,7 @@ interface IImagineFactory {
     function createImagineToken(
         string memory _name,
         string memory _symbol,
+        string memory _tokenURI,
         uint256 _nonce,
         bytes memory _signature
     ) external returns (address);
@@ -150,6 +151,7 @@ interface IImagineFactory {
     function createImagineTokenAndBuy(
         string memory _name,
         string memory _symbol,
+        string memory _tokenURI,
         uint256 _nonce,
         uint256 _tokenAmountMin,
         bytes memory _signature

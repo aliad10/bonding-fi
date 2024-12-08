@@ -6,7 +6,7 @@ import {Ownable} from "@openzeppelin-contracts-5.1.0/access/Ownable.sol";
 import {IERC20} from "@openzeppelin-contracts-5.1.0/token/ERC20/IERC20.sol";
 import {ReentrancyGuard} from "@openzeppelin-contracts-5.1.0/utils/ReentrancyGuard.sol";
 import {ERC20Burnable} from "@openzeppelin-contracts-5.1.0/token/ERC20/extensions/ERC20Burnable.sol";
-
+import {console} from "forge-std/console.sol";
 import {IImagineToken} from "./IImagineToken.sol";
 import {IUniswapV2Router02} from "./../utils/IUniswapV2Router02.sol";
 import {IUniswapV2Factory} from "./../utils/IUniswapV2Factory.sol";
@@ -111,7 +111,7 @@ contract ImagineToken is ERC20Burnable, IImagineToken, ReentrancyGuard {
     }
 
     // Function to set the token URI.
-    function setTokenURI(string memory tokenURI_) external {
+    function setTokenURI(string memory tokenURI_) external onlyFactory {
         _tokenURI = tokenURI_;
     }
 
@@ -140,6 +140,7 @@ contract ImagineToken is ERC20Burnable, IImagineToken, ReentrancyGuard {
 
         uint256 collateralToSpend = (_tokenAmount * virtualCollateralReserves) /
             (virtualTokenReserves - _tokenAmount);
+
         (helioFee, dexFee) = _calculateFee(collateralToSpend);
 
         collateralToPayWithFee = collateralToSpend + helioFee + dexFee;
@@ -227,6 +228,7 @@ contract ImagineToken is ERC20Burnable, IImagineToken, ReentrancyGuard {
     {
         uint256 collaterallToReceive = (_tokenAmount *
             virtualCollateralReserves) / (virtualTokenReserves + _tokenAmount);
+
         (helioFee, dexFee) = _calculateFee(collaterallToReceive);
         collateralToReceiveMinusFee = collaterallToReceive - helioFee - dexFee;
         _transferCollateral(treasury, helioFee);

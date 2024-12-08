@@ -11,6 +11,8 @@ import {ReentrancyGuard} from "@openzeppelin-contracts-5.1.0/utils/ReentrancyGua
 import {SignatureChecker} from "@openzeppelin-contracts-5.1.0/utils/cryptography/SignatureChecker.sol";
 import {MessageHashUtils} from "@openzeppelin-contracts-5.1.0/utils/cryptography/MessageHashUtils.sol";
 
+import "forge-std/console.sol";
+
 contract ImagineFactory is IImagineFactory, Ownable, ReentrancyGuard {
     uint256 public totalSupply;
     uint256 public virtualTokenReserves;
@@ -105,15 +107,16 @@ contract ImagineFactory is IImagineFactory, Ownable, ReentrancyGuard {
     function createImagineToken(
         string memory _name,
         string memory _symbol,
+        string memory _tokenURI,
         uint256 _nonce,
         bytes memory _signature
     ) external returns (address) {
-        _checkSignatureAndStore(_name, _symbol, _nonce, _signature);
+        _checkSignatureAndStore(_name, _symbol,_tokenURI, _nonce, _signature);
         ImagineToken token = new ImagineToken(
             IImagineToken.ConstructorParams(
                 _name,
                 _symbol,
-                "",
+                _tokenURI,
                 msg.sender, // creator
                 totalSupply,
                 virtualTokenReserves,
@@ -139,17 +142,18 @@ contract ImagineFactory is IImagineFactory, Ownable, ReentrancyGuard {
     function createImagineTokenAndBuy(
         string memory _name,
         string memory _symbol,
+        string memory _tokenURI,
         uint256 _nonce,
         uint256 _tokenAmountMin,
         bytes memory _signature
     ) external payable nonReentrant returns (address) {
-        _checkSignatureAndStore(_name, _symbol, _nonce, _signature);
+        _checkSignatureAndStore(_name, _symbol,_tokenURI, _nonce, _signature);
 
         ImagineToken token = new ImagineToken(
             IImagineToken.ConstructorParams(
                 _name,
                 _symbol,
-                "",
+                _tokenURI,
                 msg.sender, // creator
                 totalSupply,
                 virtualTokenReserves,
@@ -423,6 +427,7 @@ contract ImagineFactory is IImagineFactory, Ownable, ReentrancyGuard {
     function _checkSignatureAndStore(
         string memory _name,
         string memory _symbol,
+        string memory _tokenURI,
         uint256 _nonce,
         bytes memory _signature
     ) internal {
@@ -432,12 +437,14 @@ contract ImagineFactory is IImagineFactory, Ownable, ReentrancyGuard {
             abi.encodePacked(
                 _name,
                 _symbol,
+                _tokenURI,
                 _nonce,
                 address(this),
                 block.chainid,
                 msg.sender
             )
         );
+        
 
         if (
             !SignatureChecker.isValidSignatureNow(
