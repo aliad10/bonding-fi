@@ -433,6 +433,9 @@ contract ImagineFactory is IImagineFactory, Ownable, ReentrancyGuard {
     ) internal {
         if (usedSignatures[keccak256(_signature)]) revert SignatureIsUsed();
 
+        console.log("contractAddress   ",address(this));
+        console.log("msgSender   ",msg.sender);
+
         bytes32 message = keccak256(
             abi.encodePacked(
                 _name,

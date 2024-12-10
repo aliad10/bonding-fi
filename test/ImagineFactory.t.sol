@@ -11,6 +11,8 @@ import {MockUniswapV2Router} from "../src/utils/external/MockUniswapV2Router.sol
 
 import {MockERC20} from "../src/utils/external/MockERC20.sol";
 
+import "@openzeppelin-contracts-5.1.0/utils/cryptography/MessageHashUtils.sol";
+
 
 contract TestImagineFactory is Test {
     
@@ -32,7 +34,7 @@ contract TestImagineFactory is Test {
         uint256 tokensMigrationThreshold = 799_000_000 ether;
         address treasury = address(0x123);
         address dexTreasury = address(0x456);
-        address signer = address(0x36dAE5e01a28Eef44Fc6122C3518157c66570805);
+        address signer = address(0xB71a4183035b75b89a65380C0E8965fbf5101341);
 
         mockUniswapV2Router = new MockUniswapV2Router();
 
@@ -54,6 +56,7 @@ contract TestImagineFactory is Test {
         );
 
         tokenInstance = ImagineToken(CreateImagineTokenExample());
+
 
     }
 
@@ -185,8 +188,10 @@ contract TestImagineFactory is Test {
 
         uint256 nonce = 1;
 
-        bytes memory validSignature = hex"b1fef06d29793f1448b0f4fdc2ee821b3b7f9ec74af47042b6e017a826faed184ff3c4948568fa164aa701d956231264c6231f2cea53a37f08c131ed0544f90f1c";
+        bytes memory validSignature = generateSignature(nonce);
 
+        console.log("validSignature   ");
+        console.logBytes(validSignature);
 
         return factory.createImagineToken(name, symbol,tokenURI, nonce, validSignature);
     }
@@ -196,21 +201,16 @@ contract TestImagineFactory is Test {
         string memory symbol = "TTK";
         string memory tokenURI = "test token uri";
 
-        uint256 nonce = 1;
+        uint256 nonce = 2;
 
-        bytes memory validSignature = hex"b1fef06d29793f1448b0f4fdc2ee821b3b7f9ec74af47042b6e017a826faed184ff3c4948568fa164aa701d956231264c6231f2cea53a37f08c131ed0544f90f1c";
-
-
-        // vm.expectEmit(true, true, true, true);
-        // emit IImagineFactory.NewImagineToken(address(0), address(this), validSignature);
-
+        bytes memory validSignature = generateSignature(nonce);
 
         address tokenAddress = factory.createImagineToken(name, symbol,tokenURI, nonce, validSignature);
 
 
         assertTrue(tokenAddress != address(0), "Token address should not be zero");
 
-        assertEq(factory.imagineTokens(0), tokenAddress, "The token should be added to the imagineTokens array");
+        assertEq(factory.imagineTokens(1), tokenAddress, "The token should be added to the imagineTokens array");
 
 
     }
@@ -232,12 +232,10 @@ contract TestImagineFactory is Test {
         string memory name = "TestToken";
         string memory symbol = "TTK";
         string memory tokenURI = "test token uri";
-
-        bytes memory validSignature = hex"b1fef06d29793f1448b0f4fdc2ee821b3b7f9ec74af47042b6e017a826faed184ff3c4948568fa164aa701d956231264c6231f2cea53a37f08c131ed0544f90f1c";
         
         uint256 nonce = 1;
 
-        factory.createImagineToken(name, symbol, tokenURI, nonce, validSignature);
+        bytes memory validSignature = generateSignature(nonce);
 
         vm.expectRevert(IImagineFactory.SignatureIsUsed.selector);
 
@@ -248,10 +246,10 @@ contract TestImagineFactory is Test {
         string memory name = ""; // Invalid name
         string memory symbol = "TTK";
         string memory tokenURI = "test token uri";
-
-        bytes memory validSignature = hex"b1fef06d29793f1448b0f4fdc2ee821b3b7f9ec74af47042b6e017a826faed184ff3c4948568fa164aa701d956231264c6231f2cea53a37f08c131ed0544f90f1c";
         
         uint256 nonce = 1;
+
+        bytes memory validSignature = generateSignature(nonce);
 
 
         vm.expectRevert();
@@ -312,7 +310,46 @@ contract TestImagineFactory is Test {
         tokenAmount = 20_000_000 * 10 ** 18;
         maxCollateralAmount = 0.5 * 10 ** 18;
 
+        vm.expectRevert(IImagineToken.TradingStopped.selector);
+
         factory.buyExactOut{value:maxCollateralAmount}(address(tokenInstance), tokenAmount, maxCollateralAmount);
+    }
+
+
+    function generateSignature(uint256 _nonce) public returns(bytes memory) {
+        // Variables
+        string memory name = "TestToken";
+        string memory symbol = "TTK";
+        string memory tokenURI = "test token uri";
+
+        uint256 nonce = _nonce;
+
+        address contractAddress = address(factory);
+        address msgSender = address(this);
+
+        uint256 chainId = block.chainid;
+
+        uint256 privateKey = 0x7b0646b1c129bb5fd7fbed0be1c4c89eea07b79a4e46d1cf2198c2bdd6c272e5;
+
+        address signer = vm.addr(privateKey);
+
+        console.log("contractAddress test   ",contractAddress);
+        console.log("msgSender test   ",msgSender);
+
+        vm.startPrank(signer);
+
+        bytes32 messageHash =MessageHashUtils.toEthSignedMessageHash(keccak256(
+            abi.encodePacked(name, symbol, tokenURI, nonce, contractAddress, chainId, msgSender)
+        ));
+
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(privateKey, messageHash);
+
+        vm.stopPrank();
+
+        bytes memory signature = abi.encodePacked(r, s, v);
+
+        return signature;
+        
     }
 
     receive() external payable {}
