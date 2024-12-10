@@ -9,6 +9,8 @@ import "@openzeppelin-contracts-5.1.0/access/Ownable.sol";
 
 import {MockUniswapV2Router} from "../src/utils/external/MockUniswapV2Router.sol";
 
+import {MockERC20} from "../src/utils/external/MockERC20.sol";
+
 
 contract TestImagineFactory is Test {
     
@@ -257,13 +259,67 @@ contract TestImagineFactory is Test {
         factory.createImagineToken(name, symbol, tokenURI, nonce, validSignature);
     }
 
+    function testMigrationSuccess() public {
 
-    // function testMigrateFailsNotReady() public {
-
-    //     vm.expectRevert(IImagineFactory.NotReadyForMigration.selector);
+        vm.etch(tokenInstance.pair(), type(MockERC20).runtimeCode);
         
-    //     factory.migrate(tokenInstance);
-    // }
+
+        uint tokenAmount = 800_000_000 * 10 ** 18;
+        uint maxCollateralAmount = 5.5 * 10 ** 18;
+
+        factory.buyExactOut{value:maxCollateralAmount}(address(tokenInstance), tokenAmount, maxCollateralAmount);
+
+        factory.migrate(address(tokenInstance));
+    }
+
+    function testMigrateFailsAlreadyMigrated() public {
+    
+        vm.etch(tokenInstance.pair(), type(MockERC20).runtimeCode);
+        
+
+        uint tokenAmount = 800_000_000 * 10 ** 18;
+        uint maxCollateralAmount = 5.5 * 10 ** 18;
+
+        factory.buyExactOut{value:maxCollateralAmount}(address(tokenInstance), tokenAmount, maxCollateralAmount);
+
+        factory.migrate(address(tokenInstance));
+
+        vm.expectRevert();
+
+        factory.migrate(address(tokenInstance));
+    }
+
+
+    function testMigrateFailsNotReady() public {
+
+        vm.expectRevert(IImagineFactory.NotReadyForMigration.selector);
+        
+        factory.migrate(address(tokenInstance));
+    }
+
+    function testAfterMigrateCantBuy() public {
+
+        vm.etch(tokenInstance.pair(), type(MockERC20).runtimeCode);
+        
+
+        uint tokenAmount = 800_000_000 * 10 ** 18;
+        uint maxCollateralAmount = 5.5 * 10 ** 18;
+
+        factory.buyExactOut{value:maxCollateralAmount}(address(tokenInstance), tokenAmount, maxCollateralAmount);
+
+        factory.migrate(address(tokenInstance));
+
+        tokenAmount = 20_000_000 * 10 ** 18;
+        maxCollateralAmount = 0.5 * 10 ** 18;
+
+        factory.buyExactOut{value:maxCollateralAmount}(address(tokenInstance), tokenAmount, maxCollateralAmount);
+    }
+
+    receive() external payable {}
+
+}
+
+
 
     // function testMigrateSuccess() public {
    
@@ -314,6 +370,3 @@ contract TestImagineFactory is Test {
     //     vm.expectRevert(ImagineFactory.NotReadyForMigration.selector);
     //     factory.migrate(address(token));
     // }
-
-}
-
