@@ -9,3 +9,6 @@ libs = ["lib", "dependencies"]
 "@uniswap-v2-periphery" = "1.1.0-beta.0"
 
 # See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options
+
+
+# forge script script/DeployImagineFactory.s.sol:DeployImagineFactory --rpc-url <RPC_URL> --broadcast --etherscan-api-key <ETHERSCAN_API_KEY> --verify

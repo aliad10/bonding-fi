@@ -8,12 +8,11 @@ import {IImagineToken} from "./../token/ImagineToken.sol";
 
 import {Ownable} from "@openzeppelin-contracts-5.1.0/access/Ownable.sol";
 import {ReentrancyGuard} from "@openzeppelin-contracts-5.1.0/utils/ReentrancyGuard.sol";
-import {Pausable} from "@openzeppelin-contracts-5.1.0/utils/Pausable.sol";
 import {SignatureChecker} from "@openzeppelin-contracts-5.1.0/utils/cryptography/SignatureChecker.sol";
 import {MessageHashUtils} from "@openzeppelin-contracts-5.1.0/utils/cryptography/MessageHashUtils.sol";
 
 
-contract ImagineFactory is IImagineFactory, Ownable, ReentrancyGuard, Pausable {
+contract ImagineFactory is IImagineFactory, Ownable, ReentrancyGuard {
     uint256 public totalSupply;
     uint256 public virtualTokenReserves;
     uint256 public virtualCollateralReserves;
@@ -31,7 +30,7 @@ contract ImagineFactory is IImagineFactory, Ownable, ReentrancyGuard, Pausable {
     address public signer;
 
     mapping(bytes32 => bool) public usedSignatures;
-    mapping(address => uint8) public readyForMigration;
+    mapping(address => bool) public readyForMigration;
 
     address[] public imagineTokens;
 
@@ -72,15 +71,6 @@ contract ImagineFactory is IImagineFactory, Ownable, ReentrancyGuard, Pausable {
         UNISWAP_V2_ROUTER = _uniswapV2Router;
     }
 
-
-    function pause() external override onlyOwner {
-        _pause();
-    }
-
-    function unpause() external override onlyOwner {
-        _unpause();
-    }
-
     function setConfig(
         uint256 _totalSupply,
         uint256 _virtualTokenReserves,
@@ -119,7 +109,7 @@ contract ImagineFactory is IImagineFactory, Ownable, ReentrancyGuard, Pausable {
         string memory _tokenURI,
         uint256 _nonce,
         bytes memory _signature
-    ) external whenNotPaused returns (address) {
+    ) external returns (address) {
         _checkSignatureAndStore(_name, _symbol,_tokenURI, _nonce, _signature);
         ImagineToken token = new ImagineToken(
             IImagineToken.ConstructorParams(
@@ -155,7 +145,7 @@ contract ImagineFactory is IImagineFactory, Ownable, ReentrancyGuard, Pausable {
         uint256 _nonce,
         uint256 _tokenAmountMin,
         bytes memory _signature
-    ) external payable nonReentrant whenNotPaused returns (address) {
+    ) external payable nonReentrant returns (address) {
         _checkSignatureAndStore(_name, _symbol,_tokenURI, _nonce, _signature);
 
         ImagineToken token = new ImagineToken(
@@ -239,7 +229,7 @@ contract ImagineFactory is IImagineFactory, Ownable, ReentrancyGuard, Pausable {
         );
 
         if (ImagineToken(_token).tradingStopped()) {
-            readyForMigration[_token] = 1;
+            readyForMigration[_token] = true;
             emit MarketcapReached(_token);
         }
     }
@@ -276,7 +266,7 @@ contract ImagineFactory is IImagineFactory, Ownable, ReentrancyGuard, Pausable {
         );
 
         if (ImagineToken(_token).tradingStopped()) {
-            readyForMigration[_token] = 1;
+            readyForMigration[_token] = true;
             emit MarketcapReached(_token);
         }
     }
@@ -353,11 +343,7 @@ contract ImagineFactory is IImagineFactory, Ownable, ReentrancyGuard, Pausable {
     }
 
     function migrate(address _token) external {
-        if (readyForMigration[_token] == 0) revert NotReadyForMigration();
-
-        if (readyForMigration[_token] == 2) revert MigratedBefore();
-
-        readyForMigration[_token] = 2;
+        if (!readyForMigration[_token]) revert NotReadyForMigration();
 
         (
             uint256 tokensToMigrate,
@@ -445,7 +431,6 @@ contract ImagineFactory is IImagineFactory, Ownable, ReentrancyGuard, Pausable {
         bytes memory _signature
     ) internal {
         if (usedSignatures[keccak256(_signature)]) revert SignatureIsUsed();
-
 
         bytes32 message = keccak256(
             abi.encodePacked(

@@ -105,6 +105,8 @@ interface IImagineFactory {
         uint256 curveProgressBps
     );
 
+    function signer() external view returns(address);
+
     function buyExactOut(
         address _token,
         uint256 _tokenAmount,
