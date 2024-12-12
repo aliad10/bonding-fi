@@ -6,6 +6,7 @@ interface IImagineFactory {
     error SignatureIsUsed();
     error FailedToSendETH();
     error NotReadyForMigration();
+    error MigratedBefore();
 
     error TotalSupplyZeroValue();
     error VirtualTokenReservesZeroValue();
@@ -123,6 +124,10 @@ interface IImagineFactory {
         uint256 _tokenAmountMax,
         uint256 _amountCollateral
     ) external;
+
+    function pause() external;
+
+    function unpause() external;
 
     function setConfig(
         uint256 _totalSupply,

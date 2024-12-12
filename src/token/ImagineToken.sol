@@ -6,7 +6,6 @@ import {Ownable} from "@openzeppelin-contracts-5.1.0/access/Ownable.sol";
 import {IERC20} from "@openzeppelin-contracts-5.1.0/token/ERC20/IERC20.sol";
 import {ReentrancyGuard} from "@openzeppelin-contracts-5.1.0/utils/ReentrancyGuard.sol";
 import {ERC20Burnable} from "@openzeppelin-contracts-5.1.0/token/ERC20/extensions/ERC20Burnable.sol";
-import {console} from "forge-std/console.sol";
 import {IImagineToken} from "./IImagineToken.sol";
 import {IUniswapV2Router02} from "./../utils/IUniswapV2Router02.sol";
 import {IUniswapV2Factory} from "./../utils/IUniswapV2Factory.sol";

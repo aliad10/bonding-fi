@@ -2,7 +2,7 @@
 pragma solidity ^0.8.23;
 
 import "forge-std/Script.sol";
-import "./../../contracts/release/extensions/imagine-factory/ImagineFactory.sol";
+import "../../src/tokenFactory/ImagineFactory.sol";
 import "forge-std/console.sol";
 
 contract DeployImagineFactory is Script {
@@ -21,11 +21,14 @@ contract DeployImagineFactory is Script {
         uint256 mcUpperLimit = 27 ether;
         uint256 mcLowerLimit = 25 ether;
         uint256 tokensMigrationThreshold = 799538870462404697804703491; // near to 800 million ether
-        
-        address treasury = 0x1234567890abcdef1234567890abcdef12345678;
-        address dexTreasury = 0xabcdef1234567890abcdef1234567890abcdef12;
+
         address uniswapV2Router = 0x4752ba5DBc23f44D87826276BF6Fd6b1C372aD24;
-        address signer = 0x4567890abcdef1234567890abcdef1234567890ab;
+        
+        //change this address
+        
+        address treasury = 0x36dAE5e01a28Eef44Fc6122C3518157c66570805;
+        address dexTreasury = 0x36dAE5e01a28Eef44Fc6122C3518157c66570805;
+        address signer = 0x36dAE5e01a28Eef44Fc6122C3518157c66570805;
 
         vm.startBroadcast(deployerPrivateKey);
 
