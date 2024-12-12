@@ -1,66 +1,48 @@
-## Foundry
+# Imagine Protocol
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+Imagine Protocol is a system built on Base Network that simplifies the creation, trading, and management of tokens with advanced mechanisms for decentralized exchange and migration. The system provides a modular and secure architecture, enabling users to create tokens, manage liquidity, and handle migrations seamlessly.
 
-Foundry consists of:
+---
 
--   **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
--   **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
--   **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
--   **Chisel**: Fast, utilitarian, and verbose solidity REPL.
+## Features
 
-## Documentation
+- **Token Creation**: Instantly deploy new tokens with customizable parameters.
+- **Decentralized Trading**: Facilitates token purchases and sales with secure fee mechanisms.
+- **Migration Support**: Automatically migrate tokens upon reaching thresholds.
+- **Configurable Parameters**: Flexible settings for fees, thresholds, and limits.
+- **Secure Signature Validation**: Protects against unauthorized token creation.
 
-https://book.getfoundry.sh/
+---
 
-## Usage
+## Installation
 
-### Build
+1. **Clone Repository**:
+   ```bash
+   git clone [GIT_REPOSITORY_URL]
+   cd bonding-fi
+   ```
+2. **Install Dependencies**:
 
-```shell
-$ forge build
+```bash
+forge install
+forge soldeer install
+npm install
 ```
 
-### Test
+## Build
 
-```shell
-$ forge test
+```bash
+forge build --via-ir
 ```
 
-### Format
+## Test
 
-```shell
-$ forge fmt
+```bash
+forge Test --via-ir
 ```
 
-### Gas Snapshots
+## Deployment
 
-```shell
-$ forge snapshot
-```
-
-### Anvil
-
-```shell
-$ anvil
-```
-
-### Deploy
-
-```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
-```
-
-### Cast
-
-```shell
-$ cast <subcommand>
-```
-
-### Help
-
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
+```bash
+forge script <FILE_PATH> --rpc-url <TARGET_CHAIN_RPC_URL> --broadcast --via-ir
 ```
