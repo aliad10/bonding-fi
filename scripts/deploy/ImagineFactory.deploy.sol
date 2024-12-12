@@ -28,7 +28,7 @@ contract DeployImagineFactory is Script {
         
         address treasury = 0x36dAE5e01a28Eef44Fc6122C3518157c66570805;
         address dexTreasury = 0x36dAE5e01a28Eef44Fc6122C3518157c66570805;
-        address signer = 0x36dAE5e01a28Eef44Fc6122C3518157c66570805;
+        address signer = 0xB71a4183035b75b89a65380C0E8965fbf5101341;
 
         vm.startBroadcast(deployerPrivateKey);
 
