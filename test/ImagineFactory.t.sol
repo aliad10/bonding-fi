@@ -301,7 +301,7 @@ contract TestImagineFactory is Test {
 
         vm.expectRevert(Pausable.EnforcedPause.selector);
 
-        factory.createImagineToken(name, symbol,tokenURI, nonce, validSignature);
+        address tokenAddress = factory.createImagineToken(name, symbol,tokenURI, nonce, validSignature);
     }
 
     function testMigrationSuccess() public {
@@ -366,6 +366,98 @@ contract TestImagineFactory is Test {
         vm.expectRevert(IImagineToken.TradingStopped.selector);
 
         factory.buyExactOut{value:maxCollateralAmount}(address(tokenInstance), tokenAmount, maxCollateralAmount);
+    }
+
+
+    function testDeployFactoryForTestNet() public {
+
+        ImagineFactory localFactory;
+
+
+        uint256 totalSupply = 1_000_000_000 ether;
+        uint256 virtualTokenReserves = 1_060_000_000 ether;
+        uint256 virtualCollateralReserves = .16 ether;
+        uint256 feeBasisPoints = 100; // 1%
+        uint256 dexFeeBasisPoints = 6000; // 0.5%
+        uint256 migrationFeeFixed = 0.01 ether;
+        uint256 poolCreationFee = 0.005 ether;
+        uint256 mcUpperLimit = 2.7 ether;
+        uint256 mcLowerLimit = 2.5 ether;
+        uint256 tokensMigrationThreshold = 799538870462404697804703491;
+
+        address treasury = address(0x123);
+        address dexTreasury = address(0x456);
+        
+        mockUniswapV2Router = new MockUniswapV2Router();
+
+        
+        address uniswapV2Router = address(mockUniswapV2Router);
+
+        uint256 privateKey = 0x7b0646b1c129bb5fd7fbed0be1c4c89eea07b79a4e46d1cf2198c2bdd6c272e5;
+        
+        address signer = vm.addr(privateKey);
+
+        localFactory = new ImagineFactory(
+            totalSupply,
+            virtualTokenReserves,
+            virtualCollateralReserves,
+            feeBasisPoints,
+            dexFeeBasisPoints,
+            migrationFeeFixed,
+            poolCreationFee,
+            mcUpperLimit,
+            mcLowerLimit,
+            tokensMigrationThreshold,
+            treasury,
+            dexTreasury,
+            uniswapV2Router,
+            signer
+        );
+
+
+        string memory name1 = "TestToken";
+        string memory symbol1 = "TTK";
+        string memory tokenURI1 = "test token uri";
+
+        uint256 nonce1 = 1;
+
+        address contractAddress = address(localFactory);
+        address msgSender = address(this);
+
+        uint256 chainId = block.chainid;
+
+
+        vm.startPrank(signer);
+
+        bytes32 messageHash =MessageHashUtils.toEthSignedMessageHash(keccak256(
+            abi.encodePacked(name1, symbol1, tokenURI1, nonce1, contractAddress, chainId, msgSender)
+        ));
+
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(privateKey, messageHash);
+
+        vm.stopPrank();
+
+        bytes memory signature = abi.encodePacked(r, s, v);
+
+        bytes memory validSignature1 = signature;
+
+        address token = localFactory.createImagineToken(name1, symbol1,tokenURI1, nonce1, validSignature1);
+
+        ImagineToken tokenInstance1 = ImagineToken(token);
+
+        vm.etch(tokenInstance1.pair(), type(MockERC20).runtimeCode);
+        
+
+        uint tokenAmount1 = 800_000_000 * 10 ** 18;
+        uint maxCollateralAmount1 = .55 * 10 ** 18;
+
+        localFactory.buyExactOut{value:maxCollateralAmount1}(address(tokenInstance1), tokenAmount1, maxCollateralAmount1);
+
+        assertTrue(address(tokenInstance1).balance < 0.5 ether, "the balance of contract must be less that .5 ether");
+
+        assertTrue(localFactory.readyForMigration(address(tokenInstance1)) == 1, "readyForMigration must be change to ready for update");
+
+        localFactory.migrate(address(tokenInstance1));
     }
 
 
