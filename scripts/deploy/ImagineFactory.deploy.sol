@@ -22,13 +22,13 @@ contract DeployImagineFactory is Script {
         uint256 mcLowerLimit = 25 ether;
         uint256 tokensMigrationThreshold = 799538870462404697804703491; // near to 800 million ether
 
-        address uniswapV2Router = 0x4752ba5DBc23f44D87826276BF6Fd6b1C372aD24;
+        address uniswapV2Router = vm.envAddress("UNISWAP_V2_ROUTER");
         
         //change this address
         
-        address treasury = 0x36dAE5e01a28Eef44Fc6122C3518157c66570805;
-        address dexTreasury = 0x36dAE5e01a28Eef44Fc6122C3518157c66570805;
-        address signer = 0xB71a4183035b75b89a65380C0E8965fbf5101341;
+        address treasury = vm.envAddress("TREASURY");
+        address dexTreasury = vm.envAddress("DEX_TREASURY");
+        address signer = vm.envAddress("SIGNER");
 
         vm.startBroadcast(deployerPrivateKey);
 

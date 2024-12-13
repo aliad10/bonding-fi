@@ -3,7 +3,7 @@ const { ethers } = require("ethers");
 require("dotenv").config();
 
 async function generateSignature() {
-  const provider = new ethers.JsonRpcProvider("http://localhost:8545");
+  const provider = new ethers.JsonRpcProvider(process.env.SEPOLIA_RPC);
 
   const privateKey = process.env.PRIVATE_KEY_SIGNER;
 
@@ -17,10 +17,10 @@ async function generateSignature() {
   const name = "TestToken";
   const symbol = "TTK";
   const nonce = 1;
-  const factoryAddress = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
-  const msgSenderOfCreateToken = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
+  const factoryAddress = process.env.FACTORY_ADDRESS;
+  const msgSenderOfCreateToken = process.env.DEPLOYER;
   const tokenURI = "test token uri";
-  const chainId = 31337;
+  const chainId = 11155111;
 
   const message = ethers.solidityPackedKeccak256(
     ["string", "string", "string", "uint256", "address", "uint256", "address"],
