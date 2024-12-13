@@ -18,7 +18,7 @@ contract CreateNewToken is Script {
 
     uint256 public nonce = 1;
 
-    bytes public validSignature = hex"0a5503217727afcf5ba93b7b3e74009797ffba688c21d016a602ce39490bf63c17bfa8398faea05973adcdd56de6dddb94343ad72bd16c28cdb123101e82c43a1b"; // for generate use generateSignature.js
+    bytes public validSignature = hex"12e929f034cf7f5613dbfa7e30870ec32d69283dfb168564b4b2b658f4874f1a520df0ee4a454a56cc637a585deece9ca7ddb1c96038c7dda044884c86f6422a1c"; // for generate use generateSignature.js
 
     function run() external {
 
