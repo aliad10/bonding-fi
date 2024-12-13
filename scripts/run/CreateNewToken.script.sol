@@ -18,9 +18,9 @@ contract CreateNewToken is Script {
 
     uint256 public nonce = 1;
 
-    bytes public validSignature = hex"0a5503217727afcf5ba93b7b3e74009797ffba688c21d016a602ce39490bf63c17bfa8398faea05973adcdd56de6dddb94343ad72bd16c28cdb123101e82c43a1b"; // for generate use generateSignature.js
+    bytes public validSignature = vm.envBytes("VALID_SIGNATURE"); // for generate use generateSignature.js
 
-    function run() external {
+    function run() external returns (address) {
 
         address factoryAddress = vm.envAddress("FACTORY_ADDRESS");
 
@@ -31,9 +31,11 @@ contract CreateNewToken is Script {
 
         IImagineFactory factory = IImagineFactory(factoryAddress);
 
-        factory.createImagineToken(name, symbol,tokenURI, nonce, validSignature);
+        address token = factory.createImagineToken(name, symbol,tokenURI, nonce, validSignature);
 
         vm.stopBroadcast();
+
+        return (token);
 
     }
 }
