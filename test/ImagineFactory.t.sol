@@ -301,7 +301,7 @@ contract TestImagineFactory is Test {
 
         vm.expectRevert(Pausable.EnforcedPause.selector);
 
-        address tokenAddress = factory.createImagineToken(name, symbol,tokenURI, nonce, validSignature);
+        factory.createImagineToken(name, symbol,tokenURI, nonce, validSignature);
     }
 
     function testMigrationSuccess() public {
