@@ -3,7 +3,7 @@ const { ethers } = require("ethers");
 require("dotenv").config();
 
 async function generateSignature() {
-  const provider = new ethers.JsonRpcProvider(process.env.SEPOLIA_RPC);
+  const provider = new ethers.JsonRpcProvider(process.env.RPC);
 
   const privateKey = process.env.PRIVATE_KEY_SIGNER;
 

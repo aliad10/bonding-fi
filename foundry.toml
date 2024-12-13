@@ -10,7 +10,7 @@ libs = ["lib", "dependencies"]
 
 
 [rpc_endpoints]
-sepolia = "${SEPOLIA_RPC}"
+rpc = "${RPC}"
 localhost = "http://localhost:8545"
 
 
