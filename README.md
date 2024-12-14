@@ -48,10 +48,14 @@ forge test --via-ir
 
 ```bash
 forge script <FILE_PATH> --rpc-url <TARGET_CHAIN_RPC_URL> --broadcast --via-ir
-```
 
-### example
-
-```bash
+#example: deploy ImagineFactory main version 25 ETH mCap
 forge script ./scripts/deploy/ImagineFactory.deploy.sol --rpc-url rpc --broadcast --via-ir
+
+#example: deploy ImagineFactory with 2.5 ETH mCap for testnet porposes
+forge script ./scripts/deploy/ImagineFactoryTestNet.deploy.sol --rpc-url rpc --broadcast --via-ir
+
+#example: CreateNewToken script
+forge script ./scripts/run/CreateNewToken.script.sol --rpc-url rpc --broadcast --via-ir
+
 ```
