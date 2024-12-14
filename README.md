@@ -17,10 +17,13 @@ ImagineFun Protocol is a system built on Base Network that simplifies the creati
 ## Installation
 
 1. **Clone Repository**:
-   ```bash
-   git clone [GIT_REPOSITORY_URL]
-   cd bonding-fi
-   ```
+
+```bash
+git clone [GIT_REPOSITORY_URL]
+cd imaginfun-contract
+cp .env.example .env
+```
+
 2. **Install Dependencies**:
 
 ```bash
@@ -45,4 +48,10 @@ forge Test --via-ir
 
 ```bash
 forge script <FILE_PATH> --rpc-url <TARGET_CHAIN_RPC_URL> --broadcast --via-ir
+```
+
+### example
+
+```bash
+forge script ./scripts/deploy/ImagineFactory.deploy.sol --rpc-url rpc --broadcast --via-ir
 ```
