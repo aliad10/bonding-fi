@@ -2,19 +2,16 @@
 cache/
 out/
 dependencies/
+node_modules/
 lib/
 bin/
+docs/
 
 # Ignores development broadcast logs
 !/broadcast
 /broadcast/*/31337/
 /broadcast/*/11155111/
 /broadcast/**/dry-run/
-# Docs
-docs/
-node_modules/
 
 # Dotenv file
-.env
-.github
 .env
