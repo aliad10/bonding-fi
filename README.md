@@ -16,7 +16,7 @@ ImagineFun Protocol is a system built on Base Network that simplifies the creati
 
 ## Installation
 
-1 **Clone Repository**:
+1. **Clone Repository**:
 
 ```bash
 git clone [GIT_REPOSITORY_URL]
@@ -24,7 +24,7 @@ cd imaginfun-contract
 cp .env.example .env
 ```
 
-2 **Install Dependencies**:
+2. **Install Dependencies**:
 
 ```bash
 forge install
