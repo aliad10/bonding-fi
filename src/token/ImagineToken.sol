@@ -146,11 +146,13 @@ contract ImagineToken is ERC20Burnable, IImagineToken, ReentrancyGuard {
 
         if (collateralToPayWithFee > _maxCollateralAmount)
             revert SlippageCheckFailed();
-        _transferCollateral(treasury, helioFee);
-        _transferCollateral(dexTreasury, dexFee);
 
         virtualTokenReserves -= _tokenAmount;
         virtualCollateralReserves += collateralToSpend;
+
+        _transfer(address(this), msg.sender, _tokenAmount);
+        _transferCollateral(treasury, helioFee);
+        _transferCollateral(dexTreasury, dexFee);
 
         uint256 refund;
         if (msg.value > collateralToPayWithFee) {
@@ -160,8 +162,6 @@ contract ImagineToken is ERC20Burnable, IImagineToken, ReentrancyGuard {
         } else if (msg.value < collateralToPayWithFee) {
             revert NotEnoughtETHToBuyTokens();
         }
-
-        _transfer(address(this), msg.sender, _tokenAmount);
     }
 
     /**
@@ -191,9 +191,6 @@ contract ImagineToken is ERC20Burnable, IImagineToken, ReentrancyGuard {
             helioFee -
             dexFee;
 
-        _transferCollateral(treasury, helioFee);
-        _transferCollateral(dexTreasury, dexFee);
-
         uint256 tokensOut = (collateralToSpendMinusFee * virtualTokenReserves) /
             (virtualCollateralReserves + collateralToSpendMinusFee);
 
@@ -203,6 +200,8 @@ contract ImagineToken is ERC20Burnable, IImagineToken, ReentrancyGuard {
         virtualCollateralReserves += collateralToSpendMinusFee;
 
         _transfer(address(this), msg.sender, tokensOut);
+        _transferCollateral(treasury, helioFee);
+        _transferCollateral(dexTreasury, dexFee);
     }
 
     /**
@@ -230,17 +229,16 @@ contract ImagineToken is ERC20Burnable, IImagineToken, ReentrancyGuard {
 
         (helioFee, dexFee) = _calculateFee(collaterallToReceive);
         collateralToReceiveMinusFee = collaterallToReceive - helioFee - dexFee;
-        _transferCollateral(treasury, helioFee);
-        _transferCollateral(dexTreasury, dexFee);
 
         if (collateralToReceiveMinusFee < _amountCollateralMin)
             revert SlippageCheckFailed();
 
         virtualTokenReserves += _tokenAmount;
         virtualCollateralReserves -= collaterallToReceive;
-
-        _transferCollateral(msg.sender, collateralToReceiveMinusFee);
         _transfer(msg.sender, address(this), _tokenAmount);
+        _transferCollateral(treasury, helioFee);
+        _transferCollateral(dexTreasury, dexFee);
+        _transferCollateral(msg.sender, collateralToReceiveMinusFee);
     }
 
     /**
@@ -361,10 +359,11 @@ contract ImagineToken is ERC20Burnable, IImagineToken, ReentrancyGuard {
         tokensToBurn = tokensRemaining - tokensToMigrate;
 
         (uint256 treasuryFee, uint256 dexFee) = _splitFee(fixedMigrationFee);
+
+        _burn(address(this), tokensToBurn);
         _transferCollateral(treasury, treasuryFee + poolCreationFee);
         _transferCollateral(dexTreasury, dexFee);
 
-        _burn(address(this), tokensToBurn);
         collateralAmount =
             virtualCollateralReserves -
             virtualCollateralReservesInitial -
