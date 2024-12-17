@@ -378,7 +378,28 @@ contract TestImagineFactory is Test {
         factory.buyExactOut{value:maxCollateralAmount}(address(tokenInstance), tokenAmount, maxCollateralAmount);
 
         assertTrue(tokenInstance.balanceOf(address(this)) == tokenAmount,"the amount of balance not true");
+    }
 
+
+    function testBuyExactInFail() public {
+
+        uint tokenAmountMin = 500_000_000 * 10 ** 18;
+        uint maxEtherSpent = 1 * 10 ** 18;
+
+        vm.expectRevert(IImagineToken.SlippageCheckFailed.selector);
+
+        factory.buyExactIn{value:maxEtherSpent}(address(tokenInstance), tokenAmountMin);
+
+    }
+
+    function testBuyExactInSuccess() public {
+
+        uint tokenAmountMin = 1_000_000 * 10 ** 18;
+        uint maxEtherSpent = 1 * 10 ** 18;
+
+        factory.buyExactIn{value:maxEtherSpent}(address(tokenInstance), tokenAmountMin);
+
+        assertTrue(tokenInstance.balanceOf(address(this)) >= tokenAmountMin,"the amount of balance not true");
     }
 
 
