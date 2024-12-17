@@ -236,16 +236,12 @@ contract TestImagineFactory is Test {
 
         bytes memory validSignature = generateSignature(nonce);
 
-        vm.expectEmit(false, true, true, true);
-
 
         address tokenAddress = factory.createImagineToken(name, symbol,tokenURI, nonce, validSignature);
 
+        assertTrue(tokenAddress != address(0), "Token address should not be zero");
 
-        // assertTrue(tokenAddress != address(0), "Token address should not be zero");
-
-        // assertEq(factory.imagineTokens(3), tokenAddress, "The token should be added to the imagineTokens array");
-
+        assertEq(factory.imagineTokens(1), tokenAddress, "The token should be added to the imagineTokens array");
     }
 
     function testCreateImagineTokenFailInvalidSignature() public {
@@ -342,6 +338,49 @@ contract TestImagineFactory is Test {
 
         address tokenAddress = factory.createImagineTokenAndBuy{value:maxCollateralAmount}(name, symbol,tokenURI, nonce,tokenAmount, validSignature);
     }
+
+    function testCreateImagineTokenAndBuyPuase() public {
+
+        factory.pause();
+
+        string memory name = "TestToken";
+        string memory symbol = "TTK";
+        string memory tokenURI = "test token uri";
+
+        uint256 nonce = 2;
+
+        uint tokenAmount = 1_000_000 * 10 ** 18;
+        uint maxCollateralAmount = 1 * 10 ** 18;
+        
+        bytes memory validSignature = generateSignature(nonce);
+
+        vm.expectRevert(Pausable.EnforcedPause.selector);
+
+        address tokenAddress = factory.createImagineTokenAndBuy{value:maxCollateralAmount}(name, symbol,tokenURI, nonce,tokenAmount, validSignature);
+    }
+
+    function testBuyExactOutFail() public {
+
+        uint tokenAmount = 500_000_000 * 10 ** 18;
+        uint maxCollateralAmount = 1 * 10 ** 18;
+
+        vm.expectRevert(IImagineToken.SlippageCheckFailed.selector);
+
+        factory.buyExactOut{value:maxCollateralAmount}(address(tokenInstance), tokenAmount, maxCollateralAmount);
+
+    }
+
+    function testBuyExactOutSuccess() public {
+
+        uint tokenAmount = 100_000_000 * 10 ** 18;
+        uint maxCollateralAmount = 2 * 10 ** 18;
+
+        factory.buyExactOut{value:maxCollateralAmount}(address(tokenInstance), tokenAmount, maxCollateralAmount);
+
+        assertTrue(tokenInstance.balanceOf(address(this)) == tokenAmount,"the amount of balance not true");
+
+    }
+
 
     function testMigrationSuccess() public {
 
