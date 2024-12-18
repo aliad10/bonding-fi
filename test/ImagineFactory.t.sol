@@ -375,6 +375,8 @@ contract TestImagineFactory is Test {
         uint tokenAmount = 100_000_000 * 10 ** 18;
         uint maxCollateralAmount = 2 * 10 ** 18;
 
+        maxCollateralAmount = tokenInstance.getAmountInAndFee(tokenAmount, false);
+
         factory.buyExactOut{value:maxCollateralAmount}(address(tokenInstance), tokenAmount, maxCollateralAmount);
 
         assertTrue(tokenInstance.balanceOf(address(this)) == tokenAmount,"the amount of balance not true");
@@ -394,12 +396,52 @@ contract TestImagineFactory is Test {
 
     function testBuyExactInSuccess() public {
 
-        uint tokenAmountMin = 1_000_000 * 10 ** 18;
+        uint tokenAmountMin = 100_000_000 * 10 ** 18;
         uint maxEtherSpent = 1 * 10 ** 18;
 
-        factory.buyExactIn{value:maxEtherSpent}(address(tokenInstance), tokenAmountMin);
 
+        tokenAmountMin = tokenInstance.getAmountOutAndFee(maxEtherSpent, true);
+
+        factory.buyExactIn{value:maxEtherSpent}(address(tokenInstance), tokenAmountMin);
+        
         assertTrue(tokenInstance.balanceOf(address(this)) >= tokenAmountMin,"the amount of balance not true");
+    }
+
+
+    function testSellExactInSuccess() public {
+
+        uint tokenAmount = 100_000_000 * 10 ** 18;
+        uint maxCollateralAmount = 2 * 10 ** 18;
+
+        factory.buyExactOut{value:maxCollateralAmount}(address(tokenInstance), tokenAmount, maxCollateralAmount);
+
+        uint256 _amountCollateralMin = tokenInstance.getAmountOutAndFee(tokenAmount, false);
+
+        tokenInstance.approve(address(factory), tokenAmount);
+
+        factory.sellExactIn(address(tokenInstance), tokenAmount, _amountCollateralMin);
+
+        assertTrue(tokenInstance.balanceOf(address(this)) == 0,"the amount of balance not true");
+    }
+
+
+    function testSellExactOutSuccess() public {
+
+        uint tokenAmount = 100_000_000 * 10 ** 18;
+        uint maxCollateralAmount = 2 * 10 ** 18;
+
+        uint wantEtherAmount = 0.1 * 10 ** 18;
+
+        factory.buyExactOut{value:maxCollateralAmount}(address(tokenInstance), tokenAmount, maxCollateralAmount);
+        
+
+        tokenAmount = tokenInstance.getAmountInAndFee(wantEtherAmount, true);
+
+        tokenInstance.approve(address(factory), tokenAmount);
+
+        factory.sellExactOut(address(tokenInstance), tokenAmount, wantEtherAmount);
+
+        assertTrue(tokenInstance.balanceOf(address(this)) == (100_000_000 * 10 ** 18)-tokenAmount,"the amount of balance not true");
     }
 
 
@@ -529,7 +571,7 @@ contract TestImagineFactory is Test {
         vm.startPrank(signer);
 
         bytes32 messageHash =MessageHashUtils.toEthSignedMessageHash(keccak256(
-            abi.encodePacked(name1, symbol1, tokenURI1, nonce1, contractAddress, chainId, msgSender)
+            abi.encode(name1, symbol1, tokenURI1, nonce1, contractAddress, chainId, msgSender)
         ));
 
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(privateKey, messageHash);
@@ -580,7 +622,7 @@ contract TestImagineFactory is Test {
         vm.startPrank(signer);
 
         bytes32 messageHash =MessageHashUtils.toEthSignedMessageHash(keccak256(
-            abi.encodePacked(name, symbol, tokenURI, nonce, contractAddress, chainId, msgSender)
+            abi.encode(name, symbol, tokenURI, nonce, contractAddress, chainId, msgSender)
         ));
 
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(privateKey, messageHash);

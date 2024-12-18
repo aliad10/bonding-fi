@@ -336,7 +336,7 @@ contract ImagineToken is ERC20Burnable, IImagineToken, ReentrancyGuard {
 
 
 
-    // amount of ETH =>  how token buy (buyExactOut)
+    // amount of ETH =>  how token buy (buyExactIn)
     // (uint256 amountOut, uint256 fee) = tokenInstance.getAmountOutAndFee(maxCollateralAmount, tokenInstance.virtualCollateralReserves(), tokenInstance.virtualTokenReserves(),true);
 
     // amount of token sell =>  how ETH get (sellExactIn)
@@ -373,7 +373,7 @@ contract ImagineToken is ERC20Burnable, IImagineToken, ReentrancyGuard {
     }
 
 
-    //  i want this amount of Token => how ETH must pay (buyExactIn)
+    //  i want this amount of Token => how ETH must pay (buyExactOut)
     // (uint256 amountOut,uint256 fee) = tokenInstance.getAmountInAndFee(tokenAmount,tokenInstance.virtualCollateralReserves(), tokenInstance.virtualTokenReserves(),false);
 
     //  i want this amount of Eth => how Token must sell (sellExactOut)
