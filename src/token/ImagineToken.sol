@@ -401,9 +401,19 @@ contract ImagineToken is ERC20Burnable, IImagineToken, ReentrancyGuard {
     }
 
     function getCurveProgressBps() external view returns (uint256) {
-        uint256 progress = ((initalTokenSupply - balanceOf(address(this))) *
-            MAX_BPS) / tokensMigrationThreshold;
-        return progress < 100 ? 100 : (progress > MAX_BPS ? MAX_BPS : progress);
+        uint soldAmount = initalTokenSupply - balanceOf(address(this));
+
+        if (soldAmount > 0) {
+            uint256 progress = (soldAmount * MAX_BPS) /
+                tokensMigrationThreshold;
+
+            return
+                progress < 100
+                    ? 100
+                    : (progress > MAX_BPS ? MAX_BPS : progress);
+        } else {
+            return 0;
+        }
     }
 
     function _tokensToMigrate() internal view returns (uint256) {

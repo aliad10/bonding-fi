@@ -31,10 +31,16 @@ contract ImagineFactory is IImagineFactory, Ownable, ReentrancyGuard, Pausable {
 
     mapping(bytes32 => bool) public usedSignatures;
     mapping(address => uint8) public readyForMigration;
+    mapping(address => address) public tokenCreators;
 
     address[] public imagineTokens;
 
     uint256 private constant MAX_BPS = 2_500;
+
+    modifier onlyTokenCreator(address _token) {
+        if (msg.sender != tokenCreators[_token]) revert OnlyTokenCreator();
+        _;
+    }
 
     constructor(
         uint256 _totalSupply,
@@ -111,6 +117,14 @@ contract ImagineFactory is IImagineFactory, Ownable, ReentrancyGuard, Pausable {
         );
     }
 
+    function setTokenURI(
+        address _token,
+        string memory tokenURI_
+    ) external onlyTokenCreator(_token) {
+        IImagineToken(_token).setTokenURI(tokenURI_);
+        emit NewTokenURI(_token, msg.sender, tokenURI_);
+    }
+
     function createImagineToken(
         string memory _name,
         string memory _symbol,
@@ -142,6 +156,7 @@ contract ImagineFactory is IImagineFactory, Ownable, ReentrancyGuard, Pausable {
         );
 
         imagineTokens.push(address(token));
+        tokenCreators[address(token)] = msg.sender;
         emit NewImagineToken(address(token), msg.sender, _signature);
         return address(token);
     }
@@ -188,6 +203,7 @@ contract ImagineFactory is IImagineFactory, Ownable, ReentrancyGuard, Pausable {
         token.transfer(msg.sender, tokenAmount);
 
         imagineTokens.push(address(token));
+        tokenCreators[address(token)] = msg.sender;
         emit NewImagineTokenAndBuy(
             address(token),
             msg.sender,

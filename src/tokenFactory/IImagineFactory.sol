@@ -19,6 +19,7 @@ interface IImagineFactory {
     error SignerZeroValue();
     error FeeBPSCheckFailed();
     error McLowerLimitGreaterThanUpperLimit();
+    error OnlyTokenCreator();
 
     event SetConfig(
         uint256 totalSupply,
@@ -37,6 +38,8 @@ interface IImagineFactory {
     );
 
     event NewImagineToken(address addr, address creator, bytes signature);
+
+    event NewTokenURI(address token, address tokenCreator, string tokenURI);
 
     event NewImagineTokenAndBuy(
         address addr,
