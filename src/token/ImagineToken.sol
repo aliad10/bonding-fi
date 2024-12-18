@@ -334,6 +334,79 @@ contract ImagineToken is ERC20Burnable, IImagineToken, ReentrancyGuard {
         }
     }
 
+
+
+    // amount of ETH =>  how token buy (buyExactIn)
+    // (uint256 amountOut, uint256 fee) = tokenInstance.getAmountOutAndFee(maxCollateralAmount, tokenInstance.virtualCollateralReserves(), tokenInstance.virtualTokenReserves(),true);
+
+    // amount of token sell =>  how ETH get (sellExactIn)
+    // (amountOut,fee) = tokenInstance.getAmountOutAndFee(tokenAmount, tokenInstance.virtualTokenReserves(), tokenInstance.virtualCollateralReserves(),false);
+
+    /**
+     * @dev Calculates amountOut for a given amountIn
+     *
+     * @param _amountIn - amount in which will be transfered to the contract
+     * @param _paymentTokenIsIn - if token in is a collateral token
+     */
+    function getAmountOutAndFee(
+        uint256 _amountIn,
+        bool _paymentTokenIsIn
+    ) external view returns (uint256 amountOut) {
+        if (_paymentTokenIsIn) {
+            (uint256 helioFee, uint256 dexFee) = _calculateFee(_amountIn);
+            
+            uint256 fee = helioFee + dexFee;
+            
+            _amountIn -= fee;
+
+            amountOut = (_amountIn * virtualTokenReserves) / (virtualCollateralReserves + _amountIn);
+        } else {
+
+            amountOut = (_amountIn * virtualCollateralReserves) / (virtualTokenReserves + _amountIn);
+
+            (uint256 helioFee, uint256 dexFee) = _calculateFee(amountOut);
+
+            uint256 fee = helioFee + dexFee;
+
+            amountOut -= fee;
+        }
+    }
+
+
+    //  i want this amount of Token => how ETH must pay (buyExactOut)
+    // (uint256 amountOut,uint256 fee) = tokenInstance.getAmountInAndFee(tokenAmount,tokenInstance.virtualCollateralReserves(), tokenInstance.virtualTokenReserves(),false);
+
+    //  i want this amount of Eth => how Token must sell (sellExactOut)
+    // (uint256 amountOut,uint256 fee) = tokenInstance.getAmountInAndFee(maxCollateralAmount,tokenInstance.virtualTokenReserves(),tokenInstance.virtualCollateralReserves(),true);
+
+    /**
+     * @dev Calculates amountIn for a given amountOut
+     *
+     * @param _amountOut - amount out which will be transfered from the contract
+     * @param _paymentTokenIsOut - if token out is a payment token
+     */
+    function getAmountInAndFee(
+        uint256 _amountOut,
+        bool _paymentTokenIsOut
+    ) external view returns (uint256 amountIn) {
+        if (_paymentTokenIsOut) {
+            (uint256 helioFee, uint256 dexFee) = _calculateFee(_amountOut);
+            
+            uint256 fee = helioFee + dexFee;
+
+            _amountOut += fee;
+
+            amountIn = (_amountOut * virtualTokenReserves) / (virtualCollateralReserves - _amountOut);
+        } else {
+            amountIn = (_amountOut * virtualCollateralReserves) / (virtualTokenReserves - _amountOut);
+            (uint256 helioFee, uint256 dexFee) = _calculateFee(amountIn);
+
+            uint256 fee = helioFee + dexFee;
+
+            amountIn += fee;
+        }
+    }
+
     /**
      * @dev migrates tokens and collateral to uniswap-v2 and burns LP tokens
      */
