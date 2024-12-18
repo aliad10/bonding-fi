@@ -164,4 +164,6 @@ interface IImagineFactory {
         uint256 _tokenAmountMin,
         bytes memory _signature
     ) external payable returns (address);
+
+    function migrate(address _token) external;
 }

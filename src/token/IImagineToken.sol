@@ -38,6 +38,8 @@ interface IImagineToken is IERC20 {
     error TradingStopped();
     error OnlyFactory();
 
+    function pair() external view returns(address);
+
     function setTokenURI(string memory tokenURI_) external;
 
     function buyExactOut(

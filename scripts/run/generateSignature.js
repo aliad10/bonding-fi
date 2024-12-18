@@ -22,12 +22,12 @@ async function generateSignature() {
   const tokenURI = "test token uri";
   const chainId = 11155111;
 
-  const message = ethers.solidityPackedKeccak256(
+  const message = (new ethers.AbiCoder()).encode(
     ["string", "string", "string", "uint256", "address", "uint256", "address"],
     [
       name,
       symbol,
-      tokenURI,
+      tokenURI, 
       nonce,
       factoryAddress,
       chainId,
@@ -35,7 +35,9 @@ async function generateSignature() {
     ]
   );
 
-  const signature = await wallet.signMessage(ethers.toBeArray(message));
+  const messageHash = ethers.keccak256(message);
+
+  const signature = await wallet.signMessage(ethers.getBytes(messageHash));
 
   console.log("Generated Signature:", signature);
 }

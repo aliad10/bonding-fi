@@ -3,31 +3,23 @@ pragma solidity ^0.8.23;
 
 import "forge-std/Script.sol";
 import "forge-std/console.sol";
-import "../../src/tokenFactory/IImagineFactory.sol";
 import "../../src/token/IImagineToken.sol";
 
 
-contract BuyToken is Script {
+contract CheckProgress is Script {
 
+    function run() external returns(address pair) {
 
-    uint tokenAmount = 300_000_000 * 10 ** 18;
-    uint maxCollateralAmount = 1 * 10 ** 18;
-
-    function run() external {
-
-        address factoryAddress = vm.envAddress("FACTORY_ADDRESS");
         address tokenAddress = vm.envAddress("TOKEN_ADDRESS");
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
         
         vm.startBroadcast(deployerPrivateKey);
 
-        IImagineFactory factory = IImagineFactory(factoryAddress);
         IImagineToken token = IImagineToken(tokenAddress);
 
 
-        factory.buyExactOut{value:maxCollateralAmount}(address(token), tokenAmount, maxCollateralAmount);
+        pair = token.pair();
 
         vm.stopBroadcast();
-
     }
 }
