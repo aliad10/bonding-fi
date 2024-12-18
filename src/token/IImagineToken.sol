@@ -102,6 +102,16 @@ interface IImagineToken is IERC20 {
         bool _paymentTokenIsOut
     ) external view returns (uint256 amountIn, uint256 fee);
 
+    function getAmountOut(
+        uint256 _amountIn,
+        bool _paymentTokenIsIn
+    ) external view returns (uint256 amountOut);
+
+    function getAmountIn(
+        uint256 _amountOut,
+        bool _paymentTokenIsOut
+    ) external view returns (uint256 amountIn);
+
     function migrate()
         external
         returns (
