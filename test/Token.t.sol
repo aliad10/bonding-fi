@@ -439,8 +439,8 @@ contract ImagineTokenTest is Test, IERC20Errors {
 
         vm.startPrank(factoryAddress);
 
-        // Try call sellExactIn with zero contract eth balance (should fail)
-        vm.expectRevert(IImagineToken.FailedToSendETH.selector);
+        vm.expectRevert(IImagineToken.SlippageCheckFailed.selector);
+        // Try call buyExactOut with less collateral amount (should fail)
         token.sellExactIn(tokenAmount, minCollateralAmount);
 
         //try to buy some token
@@ -449,9 +449,16 @@ contract ImagineTokenTest is Test, IERC20Errors {
             maxCollateralAmount
         );
 
-        vm.expectRevert(IImagineToken.SlippageCheckFailed.selector);
-        // Try call buyExactOut with less collateral amount (should fail)
-        token.sellExactIn(tokenAmount, minCollateralAmount);
+        // Try call sellExactIn with ERC20InsufficientBalance (should fail)
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                IERC20Errors.ERC20InsufficientBalance.selector,
+                address(this),
+                tokenAmount,
+                tokenAmount + 1
+            )
+        );
+        token.sellExactIn(tokenAmount + 1, 10);
     }
 
     function test_sellExactIn() public {

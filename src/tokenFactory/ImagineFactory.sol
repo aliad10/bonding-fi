@@ -12,7 +12,6 @@ import {Pausable} from "@openzeppelin-contracts-5.1.0/utils/Pausable.sol";
 import {SignatureChecker} from "@openzeppelin-contracts-5.1.0/utils/cryptography/SignatureChecker.sol";
 import {MessageHashUtils} from "@openzeppelin-contracts-5.1.0/utils/cryptography/MessageHashUtils.sol";
 
-
 contract ImagineFactory is IImagineFactory, Ownable, ReentrancyGuard, Pausable {
     uint256 public totalSupply;
     uint256 public virtualTokenReserves;
@@ -72,7 +71,6 @@ contract ImagineFactory is IImagineFactory, Ownable, ReentrancyGuard, Pausable {
         UNISWAP_V2_ROUTER = _uniswapV2Router;
     }
 
-
     function pause() external override onlyOwner {
         _pause();
     }
@@ -120,7 +118,7 @@ contract ImagineFactory is IImagineFactory, Ownable, ReentrancyGuard, Pausable {
         uint256 _nonce,
         bytes memory _signature
     ) external whenNotPaused returns (address) {
-        _checkSignatureAndStore(_name, _symbol,_tokenURI, _nonce, _signature);
+        _checkSignatureAndStore(_name, _symbol, _tokenURI, _nonce, _signature);
         ImagineToken token = new ImagineToken(
             IImagineToken.ConstructorParams(
                 _name,
@@ -156,7 +154,7 @@ contract ImagineFactory is IImagineFactory, Ownable, ReentrancyGuard, Pausable {
         uint256 _tokenAmountMin,
         bytes memory _signature
     ) external payable nonReentrant whenNotPaused returns (address) {
-        _checkSignatureAndStore(_name, _symbol,_tokenURI, _nonce, _signature);
+        _checkSignatureAndStore(_name, _symbol, _tokenURI, _nonce, _signature);
 
         ImagineToken token = new ImagineToken(
             IImagineToken.ConstructorParams(
@@ -364,6 +362,7 @@ contract ImagineFactory is IImagineFactory, Ownable, ReentrancyGuard, Pausable {
             uint256 tokensToBurn,
             uint256 collateralAmount
         ) = ImagineToken(_token).migrate();
+
         emit Migrated(
             _token,
             tokensToMigrate,
@@ -446,9 +445,8 @@ contract ImagineFactory is IImagineFactory, Ownable, ReentrancyGuard, Pausable {
     ) internal {
         if (usedSignatures[keccak256(_signature)]) revert SignatureIsUsed();
 
-
         bytes32 message = keccak256(
-            abi.encodePacked(
+            abi.encode(
                 _name,
                 _symbol,
                 _tokenURI,
@@ -458,7 +456,6 @@ contract ImagineFactory is IImagineFactory, Ownable, ReentrancyGuard, Pausable {
                 msg.sender
             )
         );
-        
 
         if (
             !SignatureChecker.isValidSignatureNow(
