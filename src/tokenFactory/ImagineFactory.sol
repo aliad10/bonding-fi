@@ -12,6 +12,9 @@ import {Pausable} from "@openzeppelin-contracts-5.1.0/utils/Pausable.sol";
 import {SignatureChecker} from "@openzeppelin-contracts-5.1.0/utils/cryptography/SignatureChecker.sol";
 import {MessageHashUtils} from "@openzeppelin-contracts-5.1.0/utils/cryptography/MessageHashUtils.sol";
 
+import {SafeERC20} from "@openzeppelin-contracts-5.1.0/token/ERC20/utils/SafeERC20.sol";
+import {IERC20} from "@openzeppelin-contracts-5.1.0/token/ERC20/IERC20.sol";
+
 contract ImagineFactory is IImagineFactory, Ownable, ReentrancyGuard, Pausable {
     uint256 public totalSupply;
     uint256 public virtualTokenReserves;
@@ -185,7 +188,8 @@ contract ImagineFactory is IImagineFactory, Ownable, ReentrancyGuard, Pausable {
         ) = token.buyExactIn{value: msg.value}(_tokenAmountMin);
 
         uint256 tokenAmount = token.balanceOf(address(this));
-        token.transfer(msg.sender, tokenAmount);
+
+        SafeERC20.safeTransfer(token, msg.sender, tokenAmount);
 
         imagineTokens.push(address(token));
         emit NewImagineTokenAndBuy(
@@ -215,7 +219,8 @@ contract ImagineFactory is IImagineFactory, Ownable, ReentrancyGuard, Pausable {
                 _maxCollateralAmount
             );
 
-        IImagineToken(_token).transfer(msg.sender, _tokenAmount);
+        SafeERC20.safeTransfer(IERC20(_token), msg.sender, _tokenAmount);
+
 
         uint256 refund = address(this).balance;
         if (refund > 0) {
@@ -253,7 +258,9 @@ contract ImagineFactory is IImagineFactory, Ownable, ReentrancyGuard, Pausable {
         ) = IImagineToken(_token).buyExactIn{value: msg.value}(_amountOutMin);
 
         uint256 tokensOut = IImagineToken(_token).balanceOf(address(this));
-        IImagineToken(_token).transfer(msg.sender, tokensOut);
+
+        SafeERC20.safeTransfer(IERC20(_token), msg.sender, tokensOut);
+
 
         uint256 refund = address(this).balance;
         if (refund > 0) {
@@ -284,11 +291,9 @@ contract ImagineFactory is IImagineFactory, Ownable, ReentrancyGuard, Pausable {
         uint256 _tokenAmount,
         uint256 _amountCollateralMin
     ) external nonReentrant {
-        ImagineToken(_token).transferFrom(
-            msg.sender,
-            address(this),
-            _tokenAmount
-        );
+
+        SafeERC20.safeTransferFrom(IERC20(_token), msg.sender, address(this), _tokenAmount);
+
         (
             uint256 collateralToReceiveMinusFee,
             uint256 helioFee,
@@ -319,11 +324,9 @@ contract ImagineFactory is IImagineFactory, Ownable, ReentrancyGuard, Pausable {
         uint256 _tokenAmountMax,
         uint256 _amountCollateral
     ) external nonReentrant {
-        ImagineToken(_token).transferFrom(
-            msg.sender,
-            address(this),
-            _tokenAmountMax
-        );
+
+        SafeERC20.safeTransferFrom(IERC20(_token), msg.sender, address(this), _tokenAmountMax);
+
         (
             uint256 collateralToReceiveMinusFee,
             uint256 tokensOut,
@@ -470,3 +473,4 @@ contract ImagineFactory is IImagineFactory, Ownable, ReentrancyGuard, Pausable {
 
     receive() external payable {}
 }
+

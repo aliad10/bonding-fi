@@ -10,6 +10,9 @@ import {IImagineToken} from "./IImagineToken.sol";
 import {IUniswapV2Router02} from "./../utils/IUniswapV2Router02.sol";
 import {IUniswapV2Factory} from "./../utils/IUniswapV2Factory.sol";
 
+import {SafeERC20} from "@openzeppelin-contracts-5.1.0/token/ERC20/utils/SafeERC20.sol";
+
+
 contract ImagineToken is ERC20Burnable, IImagineToken, ReentrancyGuard {
     CurveType public constant curveType = CurveType.ConstantProductV1;
 
@@ -459,7 +462,7 @@ contract ImagineToken is ERC20Burnable, IImagineToken, ReentrancyGuard {
             _transferCollateral(treasury, address(this).balance);
         }
 
-        IERC20(pair).transfer(address(0), liquidity);
+        SafeERC20.safeTransfer(IERC20(pair), address(0), liquidity);
     }
 
     function getMarketCap() public view returns (uint256) {
