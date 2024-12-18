@@ -13,13 +13,13 @@ contract DeployImagineFactory is Script {
         
         uint256 totalSupply = 1_000_000_000 ether;
         uint256 virtualTokenReserves = 1_060_000_000 ether;
-        uint256 virtualCollateralReserves = .016 ether;
+        uint256 virtualCollateralReserves = .16 ether;
         uint256 feeBasisPoints = 100;
         uint256 dexFeeBasisPoints = 6000;
-        uint256 migrationFeeFixed = 0.001 ether;
-        uint256 poolCreationFee = 0.0005 ether;
-        uint256 mcUpperLimit = .27 ether;
-        uint256 mcLowerLimit = .25 ether;
+        uint256 migrationFeeFixed = 0.01 ether;
+        uint256 poolCreationFee = 0.005 ether;
+        uint256 mcUpperLimit = 2.7 ether;
+        uint256 mcLowerLimit = 2.5 ether;
         uint256 tokensMigrationThreshold = 799538870462404697804703491; // near to 800 million ether
 
         address uniswapV2Router = vm.envAddress("UNISWAP_V2_ROUTER");
