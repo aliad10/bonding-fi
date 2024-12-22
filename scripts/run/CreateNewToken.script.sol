@@ -3,7 +3,7 @@ pragma solidity ^0.8.23;
 
 import "forge-std/Script.sol";
 import "forge-std/console.sol";
-import "../../src/tokenFactory/IImagineFactory.sol";
+import "../../contracts/tokenFactory/IImagineFactory.sol";
 
 contract CreateNewToken is Script {
 

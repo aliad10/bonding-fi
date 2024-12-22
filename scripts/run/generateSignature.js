@@ -20,7 +20,7 @@ async function generateSignature() {
   const factoryAddress = process.env.FACTORY_ADDRESS;
   const msgSenderOfCreateToken = process.env.DEPLOYER;
   const tokenURI = "test token uri";
-  const chainId = 11155111;
+  const chainId = 84532;
 
   const message = (new ethers.AbiCoder()).encode(
     ["string", "string", "string", "uint256", "address", "uint256", "address"],

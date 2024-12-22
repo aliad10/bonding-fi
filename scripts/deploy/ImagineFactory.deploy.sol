@@ -2,7 +2,7 @@
 pragma solidity ^0.8.23;
 
 import "forge-std/Script.sol";
-import "../../src/tokenFactory/ImagineFactory.sol";
+import "../../contracts/tokenFactory/ImagineFactory.sol";
 import "forge-std/console.sol";
 
 contract DeployImagineFactory is Script {

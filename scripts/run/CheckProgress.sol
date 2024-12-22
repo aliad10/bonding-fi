@@ -3,7 +3,7 @@ pragma solidity ^0.8.23;
 
 import "forge-std/Script.sol";
 import "forge-std/console.sol";
-import "../../src/token/IImagineToken.sol";
+import "../../contracts/token/IImagineToken.sol";
 
 
 contract CheckProgress is Script {

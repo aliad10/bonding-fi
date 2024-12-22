@@ -3,8 +3,8 @@ pragma solidity ^0.8.23;
 
 import "forge-std/Script.sol";
 import "forge-std/console.sol";
-import "../../src/tokenFactory/IImagineFactory.sol";
-import "../../src/token/IImagineToken.sol";
+import "../../contracts/tokenFactory/IImagineFactory.sol";
+import "../../contracts/token/IImagineToken.sol";
 
 
 contract SellToken is Script {
@@ -24,7 +24,8 @@ contract SellToken is Script {
         IImagineFactory factory = IImagineFactory(factoryAddress);
         IImagineToken token = IImagineToken(tokenAddress);
 
-
+        token.approve(address(factory),tokenAmount);
+        
         factory.sellExactIn(address(token), tokenAmount, collateralAmountMin);
 
         vm.stopBroadcast();

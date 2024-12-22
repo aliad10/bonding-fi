@@ -6,7 +6,7 @@ out = "artifacts"
 libs = ["lib", "dependencies"]
 
 # Ignore compiler warnings that should be intentionally-skipped
-ignored_warnings_from = ["contracts/utils/external/MockERC20.sol","contracts/utils/external/MockUniswapV2Router.sol","test/Token.t.sol","test/ImagineFactory.t.sol"]
+ignored_warnings_from = ["contracts/utils/external/MockERC20.sol","contracts/utils/external/MockUniswapV2Router.sol","test/Token.t.sol","test/ImagineFactory.t.sol","contracts/vote/Vote.sol"]
 
 
 [dependencies]
