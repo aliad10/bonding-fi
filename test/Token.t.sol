@@ -2,9 +2,9 @@
 pragma solidity ^0.8.13;
 
 import {Test, console} from "forge-std/Test.sol";
-import {ImagineToken} from "../src/token/ImagineToken.sol"; // Replace with the correct path
-import {IImagineToken} from "../src/token/IImagineToken.sol"; // Import interface if needed
-import {MockUniswapV2Router} from "../src/utils/external/MockUniswapV2Router.sol"; // Import the Mock Uniswap Router
+import {ImagineToken} from "../contracts/token/ImagineToken.sol"; // Replace with the correct path
+import {IImagineToken} from "../contracts/token/IImagineToken.sol"; // Import interface if needed
+import {MockUniswapV2Router} from "../contracts/utils/external/MockUniswapV2Router.sol"; // Import the Mock Uniswap Router
 import {IERC20Errors} from "@openzeppelin-contracts-5.1.0/interfaces/draft-IERC6093.sol";
 contract ImagineTokenTest is Test, IERC20Errors {
     ImagineToken public token;

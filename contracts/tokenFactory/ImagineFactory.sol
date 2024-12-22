@@ -221,6 +221,26 @@ contract ImagineFactory is IImagineFactory, Ownable, ReentrancyGuard, Pausable {
         return address(token);
     }
 
+        /**
+     * @dev Calculates amountOut for a given amountIn
+     *
+     * @param _amountIn - amount in which will be transfered to the contract
+     */
+    function getAmountOut(
+        uint256 _amountIn
+    ) external view returns (uint256 amountOut) {
+
+        (uint256 helioFee, uint256 dexFee) = _calculateFee(_amountIn);
+
+        uint256 fee = helioFee + dexFee;
+
+        _amountIn -= fee;
+
+        amountOut =
+            (_amountIn * virtualTokenReserves) /
+            (virtualCollateralReserves + _amountIn);
+    }
+
     function buyExactOut(
         address _token,
         uint256 _tokenAmount,
@@ -485,6 +505,14 @@ contract ImagineFactory is IImagineFactory, Ownable, ReentrancyGuard, Pausable {
         ) revert InvalidSignature();
 
         usedSignatures[keccak256(_signature)] = true;
+    }
+
+    function _calculateFee(
+        uint256 _amount
+    ) internal view returns (uint256 treasuryFee, uint256 dexFee) {
+        treasuryFee = (_amount * feeBasisPoints) / 10_000;
+        dexFee = (treasuryFee * dexFeeBasisPoints) / 10_000;
+        treasuryFee -= dexFee;
     }
 
     receive() external payable {}

@@ -1,9 +1,13 @@
 [profile.default]
 via_ir = true
 optimizer = true
-src = "src"
-out = "out"
+src = "contracts"
+out = "artifacts"
 libs = ["lib", "dependencies"]
+
+# Ignore compiler warnings that should be intentionally-skipped
+ignored_warnings_from = ["contracts/utils/external/MockERC20.sol","contracts/utils/external/MockUniswapV2Router.sol","test/Token.t.sol","test/ImagineFactory.t.sol"]
+
 
 [dependencies]
 "@openzeppelin-contracts" = "5.1.0"

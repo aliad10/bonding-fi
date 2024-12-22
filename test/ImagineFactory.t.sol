@@ -3,14 +3,14 @@ pragma solidity ^0.8.23;
 
 import "forge-std/Test.sol";
 
-import "../src/tokenFactory/ImagineFactory.sol";
+import "../contracts/tokenFactory/ImagineFactory.sol";
 
 import "@openzeppelin-contracts-5.1.0/access/Ownable.sol";
 import {Pausable} from "@openzeppelin-contracts-5.1.0/utils/Pausable.sol";
 
-import {MockUniswapV2Router} from "../src/utils/external/MockUniswapV2Router.sol";
+import {MockUniswapV2Router} from "../contracts/utils/external/MockUniswapV2Router.sol";
 
-import {MockERC20} from "../src/utils/external/MockERC20.sol";
+import {MockERC20} from "../contracts/utils/external/MockERC20.sol";
 
 import "@openzeppelin-contracts-5.1.0/utils/cryptography/MessageHashUtils.sol";
 
@@ -457,12 +457,14 @@ contract TestImagineFactory is Test {
 
         bytes memory validSignature = generateSignature(nonce);
 
+        tokenAmount = factory.getAmountOut(maxCollateralAmount);
+
         address tokenAddress = factory.createImagineTokenAndBuy{
             value: maxCollateralAmount
         }(name, symbol, tokenURI, nonce, tokenAmount, validSignature);
 
         assertTrue(
-            ImagineToken(tokenAddress).balanceOf(address(this)) > tokenAmount,
+            ImagineToken(tokenAddress).balanceOf(address(this)) == tokenAmount,
             "token amount not true"
         );
         assertEq(
