@@ -6,8 +6,18 @@ node_modules/
 lib/
 bin/
 docs/
+<<<<<<< HEAD
 broadcast/
+=======
+coverage/
+out/
+# Ignores development broadcast logs
+!/broadcast
+/broadcast/*/31337/
+/broadcast/*/11155111/
+/broadcast/**/dry-run/
+>>>>>>> 9500061b97a54deca7be4dda641caa6c33073cca
 
 # Dotenv file
 .env
-
+lcov.info
