@@ -6,7 +6,8 @@ node_modules/
 lib/
 bin/
 docs/
-
+coverage/
+out/
 # Ignores development broadcast logs
 !/broadcast
 /broadcast/*/31337/
@@ -15,4 +16,4 @@ docs/
 
 # Dotenv file
 .env
-
+lcov.info

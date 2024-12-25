@@ -44,6 +44,12 @@ forge build --via-ir
 forge test --via-ir
 ```
 
+## Coverage
+
+```bash
+forge coverage --ir-minimum --report lcov && genhtml lcov.info --branch-coverage --output-dir coverage
+```
+
 ## Deployment
 
 ```bash
