@@ -193,6 +193,14 @@ contract TestImagineFactory is Test {
         factory.unpause();
 
         vm.stopPrank();
+
+        factory.transferOwnership(nonOwner);
+
+        vm.startPrank(nonOwner);
+
+        factory.unpause();
+
+        vm.stopPrank();
     }
 
     function testSetConfigSuccess() public {
@@ -866,6 +874,14 @@ contract TestImagineFactory is Test {
         return signature;
     }
 
+    function testMockErc20Transfer() public {
+        MockERC20 mockERC20 = new MockERC20("test","test",8);
+        
+        bool res = mockERC20.transfer(address(0), 100);
+
+        assertTrue(res==true,"res is invalid");
+    }
+
     function testSetTokenURI() public {
         address randomAddress = vm.addr(
             uint256(keccak256(abi.encodePacked(block.timestamp, "randomSeed2")))
@@ -910,6 +926,7 @@ contract TestImagineFactory is Test {
             "new token uri mismatch"
         );
     }
+    
 
     receive() external payable {}
 }
