@@ -52,3 +52,14 @@ jobs:
         run: |
           forge test --via-ir -vvvv
         id: test
+
+      - name: Run coverage
+        run: |
+          forge coverage --ir-minimum --report lcov
+          genhtml lcov.info --branch-coverage --output-dir coverage
+
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-report
+          path: coverage/
