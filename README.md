@@ -1,4 +1,4 @@
-[![Coverage Status](https://coveralls.io/repos/github/aliad10/bonding-fi/badge.svg?branch=main)](https://coveralls.io/github/aliad10/bonding-fi?branch=main)
+<!-- [![Coverage Status](https://coveralls.io/repos/github/aliad10/bonding-fi/badge.svg?branch=main)](https://coveralls.io/github/aliad10/bonding-fi?branch=main) -->
 
 # ImagineFun Protocol
 
