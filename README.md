@@ -1,3 +1,5 @@
+![Coverage](https://img.shields.io/badge/coverage-80%25-green)
+
 # ImagineFun Protocol
 
 ImagineFun Protocol is a system built on Base Network that simplifies the creation, trading, and management of tokens with advanced mechanisms for decentralized exchange and migration. The system provides a modular and secure architecture, enabling users to create tokens, manage liquidity, and handle migrations seamlessly.

@@ -63,3 +63,8 @@ jobs:
         with:
           name: coverage-report
           path: coverage/
+
+      - name: Extract coverage percentage
+        run: |
+          COVERAGE=$(grep -Po 'lines\.+: \d+\.\d+' coverage/index.html | grep -Po '\d+\.\d+')
+          echo "COVERAGE=$COVERAGE" >> $GITHUB_ENV
