@@ -1,5 +1,3 @@
-
-
 contract MockERC20 {
     string public name;
     string public symbol;
@@ -11,7 +9,7 @@ contract MockERC20 {
         decimals = _decimals;
     }
 
-    function transfer(address _address,uint256 _liquidity) public returns (bool) {
+    function transfer(address _address, uint256 _liquidity) public returns (bool) {
         return true;
     }
 }

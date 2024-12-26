@@ -108,29 +108,15 @@ interface IImagineFactory {
         uint256 curveProgressBps
     );
 
-    function getAmountOut(
-        uint256 _amountIn
-    ) external view returns (uint256 amountOut);
+    function getAmountOut(uint256 _amountIn) external view returns (uint256 amountOut);
 
-    function buyExactOut(
-        address _token,
-        uint256 _tokenAmount,
-        uint256 _maxCollateralAmount
-    ) external payable;
+    function buyExactOut(address _token, uint256 _tokenAmount, uint256 _maxCollateralAmount) external payable;
 
     function buyExactIn(address _token, uint256 _amountOutMin) external payable;
 
-    function sellExactIn(
-        address _token,
-        uint256 _tokenAmount,
-        uint256 _amountCollateralMin
-    ) external;
+    function sellExactIn(address _token, uint256 _tokenAmount, uint256 _amountCollateralMin) external;
 
-    function sellExactOut(
-        address _token,
-        uint256 _tokenAmountMax,
-        uint256 _amountCollateral
-    ) external;
+    function sellExactOut(address _token, uint256 _tokenAmountMax, uint256 _amountCollateral) external;
 
     function pause() external;
 

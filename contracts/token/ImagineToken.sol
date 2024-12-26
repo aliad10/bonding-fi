@@ -12,7 +12,6 @@ import {IUniswapV2Factory} from "./../utils/IUniswapV2Factory.sol";
 
 import {SafeERC20} from "@openzeppelin-contracts-5.1.0/token/ERC20/utils/SafeERC20.sol";
 
-
 contract ImagineToken is ERC20Burnable, IImagineToken, ReentrancyGuard {
     CurveType public constant curveType = CurveType.ConstantProductV1;
 
@@ -63,9 +62,7 @@ contract ImagineToken is ERC20Burnable, IImagineToken, ReentrancyGuard {
         _;
     }
 
-    constructor(
-        ConstructorParams memory _params
-    ) ERC20(_params.name, _params.symbol) {
+    constructor(ConstructorParams memory _params) ERC20(_params.name, _params.symbol) {
         _mint(address(this), _params.totalSupply);
         _tokenURI = _params.tokenURI;
 
@@ -91,8 +88,7 @@ contract ImagineToken is ERC20Burnable, IImagineToken, ReentrancyGuard {
 
         uniswapV2Router = IUniswapV2Router02(_params.uniV2Router);
         factory = msg.sender;
-        (address token0, address token1) = address(this) <
-            uniswapV2Router.WETH()
+        (address token0, address token1) = address(this) < uniswapV2Router.WETH()
             ? (address(this), uniswapV2Router.WETH())
             : (uniswapV2Router.WETH(), address(this));
 
@@ -123,32 +119,26 @@ contract ImagineToken is ERC20Burnable, IImagineToken, ReentrancyGuard {
      * @param _tokenAmount - amount of tokens to buy
      * @param _maxCollateralAmount - maximum amount of collateral a caller is willing to spend
      */
-    function buyExactOut(
-        uint256 _tokenAmount,
-        uint256 _maxCollateralAmount
-    )
+    function buyExactOut(uint256 _tokenAmount, uint256 _maxCollateralAmount)
         external
         payable
         onlyFactory
         buyChecks
-        returns (
-            uint256 collateralToPayWithFee,
-            uint256 helioFee,
-            uint256 dexFee
-        )
+        returns (uint256 collateralToPayWithFee, uint256 helioFee, uint256 dexFee)
     {
-        if (balanceOf(address(this)) <= _tokenAmount)
+        if (balanceOf(address(this)) <= _tokenAmount) {
             revert InsufficientTokenReserves();
+        }
 
-        uint256 collateralToSpend = (_tokenAmount * virtualCollateralReserves) /
-            (virtualTokenReserves - _tokenAmount);
+        uint256 collateralToSpend = (_tokenAmount * virtualCollateralReserves) / (virtualTokenReserves - _tokenAmount);
 
         (helioFee, dexFee) = _calculateFee(collateralToSpend);
 
         collateralToPayWithFee = collateralToSpend + helioFee + dexFee;
 
-        if (collateralToPayWithFee > _maxCollateralAmount)
+        if (collateralToPayWithFee > _maxCollateralAmount) {
             revert SlippageCheckFailed();
+        }
 
         virtualTokenReserves -= _tokenAmount;
         virtualCollateralReserves += collateralToSpend;
@@ -172,30 +162,23 @@ contract ImagineToken is ERC20Burnable, IImagineToken, ReentrancyGuard {
      *
      * @param _amountOutMin - minimal amount of tokens a caller will get
      */
-    function buyExactIn(
-        uint256 _amountOutMin
-    )
+    function buyExactIn(uint256 _amountOutMin)
         external
         payable
         onlyFactory
         buyChecks
-        returns (
-            uint256 collateralToPayWithFee,
-            uint256 helioFee,
-            uint256 dexFee
-        )
+        returns (uint256 collateralToPayWithFee, uint256 helioFee, uint256 dexFee)
     {
-        if (balanceOf(address(this)) <= _amountOutMin)
+        if (balanceOf(address(this)) <= _amountOutMin) {
             revert InsufficientTokenReserves();
+        }
 
         collateralToPayWithFee = msg.value;
         (helioFee, dexFee) = _calculateFee(collateralToPayWithFee);
-        uint256 collateralToSpendMinusFee = collateralToPayWithFee -
-            helioFee -
-            dexFee;
+        uint256 collateralToSpendMinusFee = collateralToPayWithFee - helioFee - dexFee;
 
-        uint256 tokensOut = (collateralToSpendMinusFee * virtualTokenReserves) /
-            (virtualCollateralReserves + collateralToSpendMinusFee);
+        uint256 tokensOut =
+            (collateralToSpendMinusFee * virtualTokenReserves) / (virtualCollateralReserves + collateralToSpendMinusFee);
 
         if (tokensOut < _amountOutMin) revert SlippageCheckFailed();
 
@@ -213,28 +196,22 @@ contract ImagineToken is ERC20Burnable, IImagineToken, ReentrancyGuard {
      * @param _tokenAmount - amount of tokens a caller wants to sell
      * @param _amountCollateralMin - minimum amount of collateral a seller will get
      */
-    function sellExactIn(
-        uint256 _tokenAmount,
-        uint256 _amountCollateralMin
-    )
+    function sellExactIn(uint256 _tokenAmount, uint256 _amountCollateralMin)
         external
         payable
         onlyFactory
         sellChecks
-        returns (
-            uint256 collateralToReceiveMinusFee,
-            uint256 helioFee,
-            uint256 dexFee
-        )
+        returns (uint256 collateralToReceiveMinusFee, uint256 helioFee, uint256 dexFee)
     {
-        uint256 collaterallToReceive = (_tokenAmount *
-            virtualCollateralReserves) / (virtualTokenReserves + _tokenAmount);
+        uint256 collaterallToReceive =
+            (_tokenAmount * virtualCollateralReserves) / (virtualTokenReserves + _tokenAmount);
 
         (helioFee, dexFee) = _calculateFee(collaterallToReceive);
         collateralToReceiveMinusFee = collaterallToReceive - helioFee - dexFee;
 
-        if (collateralToReceiveMinusFee < _amountCollateralMin)
+        if (collateralToReceiveMinusFee < _amountCollateralMin) {
             revert SlippageCheckFailed();
+        }
 
         virtualTokenReserves += _tokenAmount;
         virtualCollateralReserves -= collaterallToReceive;
@@ -249,20 +226,12 @@ contract ImagineToken is ERC20Burnable, IImagineToken, ReentrancyGuard {
      *
      * @param _tokenAmountMax - max amount of tokens a caller wants to sell
      */
-    function sellExactOut(
-        uint256 _tokenAmountMax,
-        uint256 _amountCollateral
-    )
+    function sellExactOut(uint256 _tokenAmountMax, uint256 _amountCollateral)
         external
         payable
         onlyFactory
         sellChecks
-        returns (
-            uint256 collateralToReceiveMinusFee,
-            uint256 tokensOut,
-            uint256 helioFee,
-            uint256 dexFee
-        )
+        returns (uint256 collateralToReceiveMinusFee, uint256 tokensOut, uint256 helioFee, uint256 dexFee)
     {
         (helioFee, dexFee) = _calculateFee(_amountCollateral);
         collateralToReceiveMinusFee = _amountCollateral - helioFee - dexFee;
@@ -270,9 +239,7 @@ contract ImagineToken is ERC20Burnable, IImagineToken, ReentrancyGuard {
         _transferCollateral(treasury, helioFee);
         _transferCollateral(dexTreasury, dexFee);
 
-        tokensOut =
-            (_amountCollateral * virtualTokenReserves) /
-            (virtualCollateralReserves - _amountCollateral);
+        tokensOut = (_amountCollateral * virtualTokenReserves) / (virtualCollateralReserves - _amountCollateral);
 
         if (tokensOut > _tokenAmountMax) revert SlippageCheckFailed();
         _transfer(msg.sender, address(this), tokensOut);
@@ -291,12 +258,11 @@ contract ImagineToken is ERC20Burnable, IImagineToken, ReentrancyGuard {
      * @param _reserveOut - reserve out
      * @param _paymentTokenIsIn - if token in is a collateral token
      */
-    function getAmountOutAndFee(
-        uint256 _amountIn,
-        uint256 _reserveIn,
-        uint256 _reserveOut,
-        bool _paymentTokenIsIn
-    ) external view returns (uint256 amountOut, uint256 fee) {
+    function getAmountOutAndFee(uint256 _amountIn, uint256 _reserveIn, uint256 _reserveOut, bool _paymentTokenIsIn)
+        external
+        view
+        returns (uint256 amountOut, uint256 fee)
+    {
         if (_paymentTokenIsIn) {
             (uint256 helioFee, uint256 dexFee) = _calculateFee(_amountIn);
             fee = helioFee + dexFee;
@@ -318,12 +284,11 @@ contract ImagineToken is ERC20Burnable, IImagineToken, ReentrancyGuard {
      * @param _reserveOut - reserve out
      * @param _paymentTokenIsOut - if token out is a payment token
      */
-    function getAmountInAndFee(
-        uint256 _amountOut,
-        uint256 _reserveIn,
-        uint256 _reserveOut,
-        bool _paymentTokenIsOut
-    ) external view returns (uint256 amountIn, uint256 fee) {
+    function getAmountInAndFee(uint256 _amountOut, uint256 _reserveIn, uint256 _reserveOut, bool _paymentTokenIsOut)
+        external
+        view
+        returns (uint256 amountIn, uint256 fee)
+    {
         if (_paymentTokenIsOut) {
             (uint256 helioFee, uint256 dexFee) = _calculateFee(_amountOut);
             fee = helioFee + dexFee;
@@ -343,10 +308,7 @@ contract ImagineToken is ERC20Burnable, IImagineToken, ReentrancyGuard {
      * @param _amountIn - amount in which will be transfered to the contract
      * @param _paymentTokenIsIn - if token in is a collateral token
      */
-    function getAmountOut(
-        uint256 _amountIn,
-        bool _paymentTokenIsIn
-    ) external view returns (uint256 amountOut) {
+    function getAmountOut(uint256 _amountIn, bool _paymentTokenIsIn) external view returns (uint256 amountOut) {
         if (_paymentTokenIsIn) {
             (uint256 helioFee, uint256 dexFee) = _calculateFee(_amountIn);
 
@@ -354,13 +316,9 @@ contract ImagineToken is ERC20Burnable, IImagineToken, ReentrancyGuard {
 
             _amountIn -= fee;
 
-            amountOut =
-                (_amountIn * virtualTokenReserves) /
-                (virtualCollateralReserves + _amountIn);
+            amountOut = (_amountIn * virtualTokenReserves) / (virtualCollateralReserves + _amountIn);
         } else {
-            amountOut =
-                (_amountIn * virtualCollateralReserves) /
-                (virtualTokenReserves + _amountIn);
+            amountOut = (_amountIn * virtualCollateralReserves) / (virtualTokenReserves + _amountIn);
 
             (uint256 helioFee, uint256 dexFee) = _calculateFee(amountOut);
 
@@ -376,10 +334,7 @@ contract ImagineToken is ERC20Burnable, IImagineToken, ReentrancyGuard {
      * @param _amountOut - amount out which will be transfered from the contract
      * @param _paymentTokenIsOut - if token out is a payment token
      */
-    function getAmountIn(
-        uint256 _amountOut,
-        bool _paymentTokenIsOut
-    ) external view returns (uint256 amountIn) {
+    function getAmountIn(uint256 _amountOut, bool _paymentTokenIsOut) external view returns (uint256 amountIn) {
         if (_paymentTokenIsOut) {
             (uint256 helioFee, uint256 dexFee) = _calculateFee(_amountOut);
 
@@ -387,13 +342,9 @@ contract ImagineToken is ERC20Burnable, IImagineToken, ReentrancyGuard {
 
             _amountOut += fee;
 
-            amountIn =
-                (_amountOut * virtualTokenReserves) /
-                (virtualCollateralReserves - _amountOut);
+            amountIn = (_amountOut * virtualTokenReserves) / (virtualCollateralReserves - _amountOut);
         } else {
-            amountIn =
-                (_amountOut * virtualCollateralReserves) /
-                (virtualTokenReserves - _amountOut);
+            amountIn = (_amountOut * virtualCollateralReserves) / (virtualTokenReserves - _amountOut);
             (uint256 helioFee, uint256 dexFee) = _calculateFee(amountIn);
 
             uint256 fee = helioFee + dexFee;
@@ -408,19 +359,12 @@ contract ImagineToken is ERC20Burnable, IImagineToken, ReentrancyGuard {
     function migrate()
         external
         onlyFactory
-        returns (
-            uint256 tokensToMigrate,
-            uint256 tokensToBurn,
-            uint256 collateralAmount
-        )
+        returns (uint256 tokensToMigrate, uint256 tokensToBurn, uint256 collateralAmount)
     {
         sendingToPairNotAllowed = false;
 
         uint256 tokensRemaining = balanceOf(address(this));
-        IUniswapV2Factory(uniswapV2Router.factory()).createPair(
-            address(this),
-            uniswapV2Router.WETH()
-        );
+        IUniswapV2Factory(uniswapV2Router.factory()).createPair(address(this), uniswapV2Router.WETH());
         this.approve(address(uniswapV2Router), tokensRemaining);
 
         tokensToMigrate = _tokensToMigrate();
@@ -433,21 +377,10 @@ contract ImagineToken is ERC20Burnable, IImagineToken, ReentrancyGuard {
         _transferCollateral(dexTreasury, dexFee);
 
         collateralAmount =
-            virtualCollateralReserves -
-            virtualCollateralReservesInitial -
-            treasuryFee -
-            dexFee -
-            poolCreationFee;
+            virtualCollateralReserves - virtualCollateralReservesInitial - treasuryFee - dexFee - poolCreationFee;
 
-        (, , uint256 liquidity) = uniswapV2Router.addLiquidityETH{
-            value: collateralAmount
-        }(
-            address(this),
-            tokensToMigrate,
-            tokensToMigrate,
-            collateralAmount,
-            address(this),
-            block.timestamp + 10
+        (,, uint256 liquidity) = uniswapV2Router.addLiquidityETH{value: collateralAmount}(
+            address(this), tokensToMigrate, tokensToMigrate, collateralAmount, address(this), block.timestamp + 10
         );
 
         if (address(this).balance > 0) {
@@ -458,8 +391,7 @@ contract ImagineToken is ERC20Burnable, IImagineToken, ReentrancyGuard {
     }
 
     function getMarketCap() public view returns (uint256) {
-        uint256 mc = (virtualCollateralReserves * 10 ** 18 * totalSupply()) /
-            virtualTokenReserves;
+        uint256 mc = (virtualCollateralReserves * 10 ** 18 * totalSupply()) / virtualTokenReserves;
         return mc / 10 ** 18;
     }
 
@@ -469,47 +401,35 @@ contract ImagineToken is ERC20Burnable, IImagineToken, ReentrancyGuard {
     }
 
     function getCurveProgressBps() external view returns (uint256) {
-        uint soldAmount = initalTokenSupply - balanceOf(address(this));
+        uint256 soldAmount = initalTokenSupply - balanceOf(address(this));
 
         if (soldAmount > 0) {
-            uint256 progress = (soldAmount * MAX_BPS) /
-                tokensMigrationThreshold;
+            uint256 progress = (soldAmount * MAX_BPS) / tokensMigrationThreshold;
 
-            return
-                progress < 100
-                    ? 100
-                    : (progress > MAX_BPS ? MAX_BPS : progress);
+            return progress < 100 ? 100 : (progress > MAX_BPS ? MAX_BPS : progress);
         } else {
             return 0;
         }
     }
 
     function _tokensToMigrate() internal view returns (uint256) {
-        uint256 collateralDeductedFee = address(this).balance -
-            fixedMigrationFee -
-            poolCreationFee;
-        return
-            (virtualTokenReserves * collateralDeductedFee) /
-            virtualCollateralReserves;
+        uint256 collateralDeductedFee = address(this).balance - fixedMigrationFee - poolCreationFee;
+        return (virtualTokenReserves * collateralDeductedFee) / virtualCollateralReserves;
     }
 
-    function _calculateFee(
-        uint256 _amount
-    ) internal view returns (uint256 treasuryFee, uint256 dexFee) {
+    function _calculateFee(uint256 _amount) internal view returns (uint256 treasuryFee, uint256 dexFee) {
         treasuryFee = (_amount * feeBPS) / MAX_BPS;
         dexFee = (treasuryFee * dexFeeBPS) / MAX_BPS;
         treasuryFee -= dexFee;
     }
 
-    function _splitFee(
-        uint256 _feeAmount
-    ) internal view returns (uint256 treasuryFee, uint256 dexFee) {
+    function _splitFee(uint256 _feeAmount) internal view returns (uint256 treasuryFee, uint256 dexFee) {
         dexFee = (_feeAmount * dexFeeBPS) / MAX_BPS;
         treasuryFee = _feeAmount - dexFee;
     }
 
     function _transferCollateral(address _to, uint256 _amount) internal {
-        (bool sent, ) = _to.call{value: _amount}("");
+        (bool sent,) = _to.call{value: _amount}("");
         if (!sent) revert FailedToSendETH();
     }
 
@@ -527,12 +447,10 @@ contract ImagineToken is ERC20Burnable, IImagineToken, ReentrancyGuard {
         }
     }
 
-    function transfer(
-        address _to,
-        uint256 _value
-    ) public override(ERC20, IERC20) returns (bool) {
-        if (_to == pair && sendingToPairNotAllowed)
+    function transfer(address _to, uint256 _value) public override(ERC20, IERC20) returns (bool) {
+        if (_to == pair && sendingToPairNotAllowed) {
             revert SendingToPairIsNotAllowedBeforeMigration();
+        }
         return super.transfer(_to, _value);
     }
 }

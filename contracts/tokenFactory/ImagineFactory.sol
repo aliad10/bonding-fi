@@ -120,10 +120,7 @@ contract ImagineFactory is IImagineFactory, Ownable, ReentrancyGuard, Pausable {
         );
     }
 
-    function setTokenURI(
-        address _token,
-        string memory tokenURI_
-    ) external onlyTokenCreator(_token) {
+    function setTokenURI(address _token, string memory tokenURI_) external onlyTokenCreator(_token) {
         IImagineToken(_token).setTokenURI(tokenURI_);
         emit NewTokenURI(_token, msg.sender, tokenURI_);
     }
@@ -196,11 +193,8 @@ contract ImagineFactory is IImagineFactory, Ownable, ReentrancyGuard, Pausable {
             )
         );
 
-        (
-            uint256 collateralToPayWithFee,
-            uint256 helioFee,
-            uint256 dexFee
-        ) = token.buyExactIn{value: msg.value}(_tokenAmountMin);
+        (uint256 collateralToPayWithFee, uint256 helioFee, uint256 dexFee) =
+            token.buyExactIn{value: msg.value}(_tokenAmountMin);
 
         uint256 tokenAmount = token.balanceOf(address(this));
 
@@ -221,46 +215,34 @@ contract ImagineFactory is IImagineFactory, Ownable, ReentrancyGuard, Pausable {
         return address(token);
     }
 
-        /**
+    /**
      * @dev Calculates amountOut for a given amountIn
      *
      * @param _amountIn - amount in which will be transfered to the contract
      */
-    function getAmountOut(
-        uint256 _amountIn
-    ) external view returns (uint256 amountOut) {
-
+    function getAmountOut(uint256 _amountIn) external view returns (uint256 amountOut) {
         (uint256 helioFee, uint256 dexFee) = _calculateFee(_amountIn);
 
         uint256 fee = helioFee + dexFee;
 
         _amountIn -= fee;
 
-        amountOut =
-            (_amountIn * virtualTokenReserves) /
-            (virtualCollateralReserves + _amountIn);
+        amountOut = (_amountIn * virtualTokenReserves) / (virtualCollateralReserves + _amountIn);
     }
 
-    function buyExactOut(
-        address _token,
-        uint256 _tokenAmount,
-        uint256 _maxCollateralAmount
-    ) external payable nonReentrant {
-        (
-            uint256 collateralToPayWithFee,
-            uint256 helioFee,
-            uint256 dexFee
-        ) = IImagineToken(_token).buyExactOut{value: msg.value}(
-                _tokenAmount,
-                _maxCollateralAmount
-            );
+    function buyExactOut(address _token, uint256 _tokenAmount, uint256 _maxCollateralAmount)
+        external
+        payable
+        nonReentrant
+    {
+        (uint256 collateralToPayWithFee, uint256 helioFee, uint256 dexFee) =
+            IImagineToken(_token).buyExactOut{value: msg.value}(_tokenAmount, _maxCollateralAmount);
 
         SafeERC20.safeTransfer(IERC20(_token), msg.sender, _tokenAmount);
 
-
         uint256 refund = address(this).balance;
         if (refund > 0) {
-            (bool sent, ) = msg.sender.call{value: refund}("");
+            (bool sent,) = msg.sender.call{value: refund}("");
             if (!sent) revert FailedToSendETH();
         }
 
@@ -268,8 +250,7 @@ contract ImagineFactory is IImagineFactory, Ownable, ReentrancyGuard, Pausable {
             msg.sender,
             _token,
             _tokenAmount,
-            ImagineToken(_token).totalSupply() -
-                IImagineToken(_token).balanceOf(address(_token)),
+            ImagineToken(_token).totalSupply() - IImagineToken(_token).balanceOf(address(_token)),
             collateralToPayWithFee,
             refund,
             helioFee,
@@ -283,24 +264,17 @@ contract ImagineFactory is IImagineFactory, Ownable, ReentrancyGuard, Pausable {
         }
     }
 
-    function buyExactIn(
-        address _token,
-        uint256 _amountOutMin
-    ) external payable nonReentrant {
-        (
-            uint256 collateralToPayWithFee,
-            uint256 helioFee,
-            uint256 dexFee
-        ) = IImagineToken(_token).buyExactIn{value: msg.value}(_amountOutMin);
+    function buyExactIn(address _token, uint256 _amountOutMin) external payable nonReentrant {
+        (uint256 collateralToPayWithFee, uint256 helioFee, uint256 dexFee) =
+            IImagineToken(_token).buyExactIn{value: msg.value}(_amountOutMin);
 
         uint256 tokensOut = IImagineToken(_token).balanceOf(address(this));
 
         SafeERC20.safeTransfer(IERC20(_token), msg.sender, tokensOut);
 
-
         uint256 refund = address(this).balance;
         if (refund > 0) {
-            (bool sent, ) = msg.sender.call{value: refund}("");
+            (bool sent,) = msg.sender.call{value: refund}("");
             if (!sent) revert FailedToSendETH();
         }
 
@@ -308,8 +282,7 @@ contract ImagineFactory is IImagineFactory, Ownable, ReentrancyGuard, Pausable {
             msg.sender,
             _token,
             tokensOut,
-            ImagineToken(_token).totalSupply() -
-                IImagineToken(_token).balanceOf(address(_token)),
+            ImagineToken(_token).totalSupply() - IImagineToken(_token).balanceOf(address(_token)),
             collateralToPayWithFee,
             helioFee,
             dexFee,
@@ -322,32 +295,20 @@ contract ImagineFactory is IImagineFactory, Ownable, ReentrancyGuard, Pausable {
         }
     }
 
-    function sellExactIn(
-        address _token,
-        uint256 _tokenAmount,
-        uint256 _amountCollateralMin
-    ) external nonReentrant {
-
+    function sellExactIn(address _token, uint256 _tokenAmount, uint256 _amountCollateralMin) external nonReentrant {
         SafeERC20.safeTransferFrom(IERC20(_token), msg.sender, address(this), _tokenAmount);
 
-        (
-            uint256 collateralToReceiveMinusFee,
-            uint256 helioFee,
-            uint256 dexFee
-        ) = ImagineToken(_token).sellExactIn(
-                _tokenAmount,
-                _amountCollateralMin
-            );
+        (uint256 collateralToReceiveMinusFee, uint256 helioFee, uint256 dexFee) =
+            ImagineToken(_token).sellExactIn(_tokenAmount, _amountCollateralMin);
 
-        (bool sent, ) = msg.sender.call{value: address(this).balance}("");
+        (bool sent,) = msg.sender.call{value: address(this).balance}("");
         if (!sent) revert FailedToSendETH();
 
         emit SellExactIn(
             msg.sender,
             _token,
             _tokenAmount,
-            ImagineToken(_token).totalSupply() -
-                ImagineToken(_token).balanceOf(address(_token)),
+            ImagineToken(_token).totalSupply() - ImagineToken(_token).balanceOf(address(_token)),
             collateralToReceiveMinusFee,
             helioFee,
             dexFee,
@@ -355,33 +316,20 @@ contract ImagineFactory is IImagineFactory, Ownable, ReentrancyGuard, Pausable {
         );
     }
 
-    function sellExactOut(
-        address _token,
-        uint256 _tokenAmountMax,
-        uint256 _amountCollateral
-    ) external nonReentrant {
-
+    function sellExactOut(address _token, uint256 _tokenAmountMax, uint256 _amountCollateral) external nonReentrant {
         SafeERC20.safeTransferFrom(IERC20(_token), msg.sender, address(this), _tokenAmountMax);
 
-        (
-            uint256 collateralToReceiveMinusFee,
-            uint256 tokensOut,
-            uint256 helioFee,
-            uint256 dexFee
-        ) = ImagineToken(_token).sellExactOut(
-                _tokenAmountMax,
-                _amountCollateral
-            );
+        (uint256 collateralToReceiveMinusFee, uint256 tokensOut, uint256 helioFee, uint256 dexFee) =
+            ImagineToken(_token).sellExactOut(_tokenAmountMax, _amountCollateral);
 
-        (bool sent, ) = msg.sender.call{value: address(this).balance}("");
+        (bool sent,) = msg.sender.call{value: address(this).balance}("");
         if (!sent) revert FailedToSendETH();
 
         emit SellExactOut(
             msg.sender,
             _token,
             tokensOut,
-            ImagineToken(_token).totalSupply() -
-                ImagineToken(_token).balanceOf(address(_token)),
+            ImagineToken(_token).totalSupply() - ImagineToken(_token).balanceOf(address(_token)),
             collateralToReceiveMinusFee,
             helioFee,
             dexFee,
@@ -396,19 +344,14 @@ contract ImagineFactory is IImagineFactory, Ownable, ReentrancyGuard, Pausable {
 
         readyForMigration[_token] = 2;
 
-        (
-            uint256 tokensToMigrate,
-            uint256 tokensToBurn,
-            uint256 collateralAmount
-        ) = ImagineToken(_token).migrate();
+        (uint256 tokensToMigrate, uint256 tokensToBurn, uint256 collateralAmount) = ImagineToken(_token).migrate();
 
         emit Migrated(
             _token,
             tokensToMigrate,
             tokensToBurn,
             collateralAmount,
-            ImagineToken(_token).fixedMigrationFee() +
-                ImagineToken(_token).poolCreationFee(),
+            ImagineToken(_token).fixedMigrationFee() + ImagineToken(_token).poolCreationFee(),
             ImagineToken(_token).pair()
         );
     }
@@ -430,17 +373,20 @@ contract ImagineFactory is IImagineFactory, Ownable, ReentrancyGuard, Pausable {
     ) internal {
         if (_totalSupply == 0) revert TotalSupplyZeroValue();
         if (_virtualTokenReserves == 0) revert VirtualTokenReservesZeroValue();
-        if (_virtualCollateralReserves == 0)
+        if (_virtualCollateralReserves == 0) {
             revert VirtualCollateralReservesZeroValue();
+        }
         if (_mcLowerLimit == 0) revert McUpperLimitZeroValue();
         if (_mcUpperLimit == 0) revert McLowerLimitZeroValue();
-        if (_tokensMigrationThreshold == 0)
+        if (_tokensMigrationThreshold == 0) {
             revert TokensMigrationThresholdZeroValue();
+        }
         if (_treasury == address(0)) revert TreasuryZeroValue();
         if (_dexTreasury == address(0)) revert DexTreasuryZeroValue();
         if (_signer == address(0)) revert SignerZeroValue();
-        if (_mcLowerLimit >= _mcUpperLimit)
+        if (_mcLowerLimit >= _mcUpperLimit) {
             revert McLowerLimitGreaterThanUpperLimit();
+        }
         if (dexFeeBasisPoints >= 10_000) revert FeeBPSCheckFailed();
         if (feeBasisPoints >= MAX_BPS) revert FeeBPSCheckFailed();
 
@@ -484,32 +430,18 @@ contract ImagineFactory is IImagineFactory, Ownable, ReentrancyGuard, Pausable {
     ) internal {
         if (usedSignatures[keccak256(_signature)]) revert SignatureIsUsed();
 
-        bytes32 message = keccak256(
-            abi.encode(
-                _name,
-                _symbol,
-                _tokenURI,
-                _nonce,
-                address(this),
-                block.chainid,
-                msg.sender
-            )
-        );
+        bytes32 message =
+            keccak256(abi.encode(_name, _symbol, _tokenURI, _nonce, address(this), block.chainid, msg.sender));
 
-        if (
-            !SignatureChecker.isValidSignatureNow(
-                signer,
-                MessageHashUtils.toEthSignedMessageHash(message),
-                _signature
-            )
-        ) revert InvalidSignature();
+        if (!SignatureChecker.isValidSignatureNow(signer, MessageHashUtils.toEthSignedMessageHash(message), _signature))
+        {
+            revert InvalidSignature();
+        }
 
         usedSignatures[keccak256(_signature)] = true;
     }
 
-    function _calculateFee(
-        uint256 _amount
-    ) internal view returns (uint256 treasuryFee, uint256 dexFee) {
+    function _calculateFee(uint256 _amount) internal view returns (uint256 treasuryFee, uint256 dexFee) {
         treasuryFee = (_amount * feeBasisPoints) / 10_000;
         dexFee = (treasuryFee * dexFeeBasisPoints) / 10_000;
         treasuryFee -= dexFee;
@@ -517,4 +449,3 @@ contract ImagineFactory is IImagineFactory, Ownable, ReentrancyGuard, Pausable {
 
     receive() external payable {}
 }
-

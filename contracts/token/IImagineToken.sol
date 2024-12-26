@@ -38,89 +38,45 @@ interface IImagineToken is IERC20 {
     error TradingStopped();
     error OnlyFactory();
 
-    function pair() external view returns(address);
+    function pair() external view returns (address);
 
     function setTokenURI(string memory tokenURI_) external;
 
-    function buyExactOut(
-        uint256 _tokenAmount,
-        uint256 _maxCollateralAmount
-    )
+    function buyExactOut(uint256 _tokenAmount, uint256 _maxCollateralAmount)
         external
         payable
-        returns (
-            uint256 collateralToPayWithFee,
-            uint256 helioFee,
-            uint256 dexFee
-        );
+        returns (uint256 collateralToPayWithFee, uint256 helioFee, uint256 dexFee);
 
-    function buyExactIn(
-        uint256 _amountOutMin
-    )
+    function buyExactIn(uint256 _amountOutMin)
         external
         payable
-        returns (
-            uint256 collateralToPayWithFee,
-            uint256 helioFee,
-            uint256 dexFee
-        );
+        returns (uint256 collateralToPayWithFee, uint256 helioFee, uint256 dexFee);
 
-    function sellExactIn(
-        uint256 _tokenAmount,
-        uint256 _amountOutMin
-    )
+    function sellExactIn(uint256 _tokenAmount, uint256 _amountOutMin)
         external
         payable
-        returns (
-            uint256 collateralToReceiveMinusFee,
-            uint256 helioFee,
-            uint256 dexFee
-        );
+        returns (uint256 collateralToReceiveMinusFee, uint256 helioFee, uint256 dexFee);
 
-    function sellExactOut(
-        uint256 _tokenAmountMax,
-        uint256 _amountCollateral
-    )
+    function sellExactOut(uint256 _tokenAmountMax, uint256 _amountCollateral)
         external
         payable
-        returns (
-            uint256 collateralToReceiveMinusFee,
-            uint256 tokensOut,
-            uint256 helioFee,
-            uint256 dexFee
-        );
+        returns (uint256 collateralToReceiveMinusFee, uint256 tokensOut, uint256 helioFee, uint256 dexFee);
 
-    function getAmountOutAndFee(
-        uint256 _amountIn,
-        uint256 _reserveIn,
-        uint256 _reserveOut,
-        bool _paymentTokenIsIn
-    ) external view returns (uint256 amountOut, uint256 fee);
-
-    function getAmountInAndFee(
-        uint256 _amountOut,
-        uint256 _reserveIn,
-        uint256 _reserveOut,
-        bool _paymentTokenIsOut
-    ) external view returns (uint256 amountIn, uint256 fee);
-
-    function getAmountOut(
-        uint256 _amountIn,
-        bool _paymentTokenIsIn
-    ) external view returns (uint256 amountOut);
-
-    function getAmountIn(
-        uint256 _amountOut,
-        bool _paymentTokenIsOut
-    ) external view returns (uint256 amountIn);
-
-    function migrate()
+    function getAmountOutAndFee(uint256 _amountIn, uint256 _reserveIn, uint256 _reserveOut, bool _paymentTokenIsIn)
         external
-        returns (
-            uint256 tokensToMigrate,
-            uint256 tokensToBurn,
-            uint256 collateralAmount
-        );
+        view
+        returns (uint256 amountOut, uint256 fee);
+
+    function getAmountInAndFee(uint256 _amountOut, uint256 _reserveIn, uint256 _reserveOut, bool _paymentTokenIsOut)
+        external
+        view
+        returns (uint256 amountIn, uint256 fee);
+
+    function getAmountOut(uint256 _amountIn, bool _paymentTokenIsIn) external view returns (uint256 amountOut);
+
+    function getAmountIn(uint256 _amountOut, bool _paymentTokenIsOut) external view returns (uint256 amountIn);
+
+    function migrate() external returns (uint256 tokensToMigrate, uint256 tokensToBurn, uint256 collateralAmount);
 
     function getCurveProgressBps() external view returns (uint256);
 
