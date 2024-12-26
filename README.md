@@ -1,4 +1,4 @@
-![Coverage](https://img.shields.io/badge/coverage-80%25-green)
+[![Coverage Status](https://coveralls.io/repos/github/username/repository/badge.svg?branch=main)](https://coveralls.io/github/username/repository?branch=main)
 
 # ImagineFun Protocol
 
