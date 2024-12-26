@@ -32,7 +32,7 @@ jobs:
 
       - name: Install Icov for coverage
         run: |
-          apt install lcov
+          sudo apt install lcov
 
       - name: Forge install soldeer
         run: |
