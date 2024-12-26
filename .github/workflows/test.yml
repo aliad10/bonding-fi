@@ -25,9 +25,14 @@ jobs:
         with:
           version: nightly
 
-      - name: Show Forge version
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+
+      - name: Install Icov for coverage
         run: |
-          forge --version
+          apt install lcov
 
       - name: Forge install soldeer
         run: |
